@@ -37,6 +37,8 @@ GEN_CONFIG = {
     "top_k": 40,
     "repeat_penalty": 1.05,
     "stop": ["</s>"]
+}
+    
 RUNTIME_CONFIG = {
     "n_threads": 8,
     "n_gpu_layers": 24,
