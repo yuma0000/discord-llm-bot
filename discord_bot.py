@@ -29,7 +29,7 @@ if not os.path.exists("mania-model.Q8_K_M.gguf"):
 print(f"Loading GGUF model from: mania-model.Q8_K_M.gguf")
 
 # ====== 設定 ======
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "MTM1MDgwMjc0MzYxODY5OTMwNA.Gdo19O.nkUdnBVvJ6WfsM7GaUOf3GxbJlkeSdsUYfqZ-k")
 GGUF_PATH = "mania-model.Q8_K_M.gguf"
 
 MAX_NEW_TOKENS = 100
