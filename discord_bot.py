@@ -50,8 +50,8 @@ GEN_CONFIG = {
 }
 
 RUNTIME_CONFIG = {
-    "n_threads": 1,
-    "n_gpu_layers": 0,
+    "n_threads": 8,
+    "n_gpu_layers": 24,
     "n_ctx": 4096
 }
 
@@ -91,14 +91,17 @@ SEARCH_RESULTS = load_search_results("dataset.jsonl")
 
 # ====== llama.cpp モデルロード ======
 log.info(f"Loading GGUF model from: {GGUF_PATH}")
-
-llm = Llama(
-    model_path=GGUF_PATH,
-    n_ctx=RUNTIME_CONFIG["n_ctx"],
-    n_threads=RUNTIME_CONFIG["n_threads"],
-    n_gpu_layers=RUNTIME_CONFIG["n_gpu_layers"],
-    verbose=True
-)
+try:
+    llm = Llama(
+        model_path=GGUF_PATH,
+        n_ctx=RUNTIME_CONFIG["n_ctx"],
+        n_threads=RUNTIME_CONFIG["n_threads"],
+        n_gpu_layers=RUNTIME_CONFIG["n_gpu_layers"],
+        verbose=False
+    )
+    print("モデルロード成功")
+except Exception as e:
+    print("Python 側で捕捉した例外:", e)
 
 log.info("GGUF model loaded successfully!")
 
