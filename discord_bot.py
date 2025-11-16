@@ -17,8 +17,14 @@ import sys
     
 if not os.path.exists("mania-model.Q8_K_M.gguf"):
     print("Downloading GGUF MODEL")
-    subprocess.check_call([sys.executable, "-m", "wget", "https://mt.f5.si/mania-model.Q8_K_M.gguf"])
+    url = 'https://mt.f5.si/mania-model.Q8_K_M.gguf'
+    output_path = 'mania-model.Q8_K_M.gguf'
 
+    try:
+        wget.download(url, out=output_path)
+        print("\nダウンロード成功:", output_path)
+    except Exception as e:
+        print("wget モジュールで失敗:", e)
 print(f"Loading GGUF model from: mania-model.Q8_K_M.gguf")
 
 # ====== 設定 ======
