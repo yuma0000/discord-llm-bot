@@ -1,7 +1,6 @@
 # ==========================================================
 #  Discord Bot (GGUF / llama.cpp 高速版)
 # ==========================================================
-
 import os
 import re
 import json
@@ -15,21 +14,12 @@ from llama_cpp import Llama
 import os
 import subprocess
 import sys
+    
+if not os.path.exists("mania-model.Q8_K_M.gguf"):
+    print("Downloading GGUF MODEL")
+    subprocess.check_call([sys.executable, "-m", "wget", "https://mt.f5.si/mania-model.Q8_K_M.gguf"])
 
-# ======== Google Drive から gdown でダウンロード ========
-try:
-    import gdown
-except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "gdown"])
-    import gdown
-MODEL_FILE = "mania-model.Q8_K_M.gguf"
-FILE_ID = "1eIs-Zth6FQVwSTvz5yhZoPZGDWptnuzk"
-
-if not os.path.exists(MODEL_FILE):
-    print("Downloading GGUF MODEL from Google Drive...")
-    gdown.download(id=FILE_ID, output=MODEL_FILE, quiet=False)
-
-print(f"Loading GGUF model from: {MODEL_FILE}")
+print(f"Loading GGUF model from: mania-model.Q8_K_M.gguf")
 
 # ====== 設定 ======
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
@@ -46,9 +36,7 @@ GEN_CONFIG = {
     "top_p": 0.70,
     "top_k": 40,
     "repeat_penalty": 1.05,
-    "stop": ["</s>"],
-}
-
+    "stop": ["</s>"]
 RUNTIME_CONFIG = {
     "n_threads": 8,
     "n_gpu_layers": 24,
