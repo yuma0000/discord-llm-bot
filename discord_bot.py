@@ -25,7 +25,6 @@ except ImportError:
 MODEL_FILE = "mania-model.Q8_K_M.gguf"
 FILE_ID = "1eIs-Zth6FQVwSTvz5yhZoPZGDWptnuzk"
 
-# モデルが存在しない場合のみダウンロード
 if not os.path.exists(MODEL_FILE):
     print("Downloading GGUF MODEL from Google Drive...")
     gdown.download(id=FILE_ID, output=MODEL_FILE, quiet=False)
@@ -34,7 +33,7 @@ print(f"Loading GGUF model from: {MODEL_FILE}")
 
 # ====== 設定 ======
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-GGUF_PATH = "/workspace/mania-model.Q8_K_M.gguf"
+GGUF_PATH = "mania-model.Q8_K_M.gguf"
 
 MAX_NEW_TOKENS = 100
 STREAM_DELAY = 0.3
@@ -98,7 +97,7 @@ llm = Llama(
     n_ctx=RUNTIME_CONFIG["n_ctx"],
     n_threads=RUNTIME_CONFIG["n_threads"],
     n_gpu_layers=RUNTIME_CONFIG["n_gpu_layers"],
-    verbose=False
+    verbose=True
 )
 
 log.info("GGUF model loaded successfully!")
