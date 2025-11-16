@@ -13,8 +13,8 @@ from discord import app_commands
 from llama_cpp import Llama
 
 # ====== 設定 ======
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "MTM1MDgwMjc0MzYxODY5OTMwNA.GjcugV.ELoxaERCP0sT4hSs0cy8IrgaKudUWdP8XZAJbs")
-GGUF_PATH = "/content/drive/MyDrive/llm/model/mania-model.Q8_K_M.gguf"
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+GGUF_PATH = "model/mania-model.Q8_K_M.gguf"
 
 MAX_NEW_TOKENS = 100
 STREAM_DELAY = 0.3
@@ -68,7 +68,7 @@ def load_search_results(file_path):
                 continue
     return search_list
 
-SEARCH_RESULTS = load_search_results("/content/drive/MyDrive/llm/dataset.jsonl")
+SEARCH_RESULTS = load_search_results("dataset.jsonl")
 
 # ====== llama.cpp モデルロード ======
 log.info(f"Loading GGUF model from: {GGUF_PATH}")
