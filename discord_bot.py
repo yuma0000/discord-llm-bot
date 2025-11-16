@@ -22,18 +22,19 @@ try:
 except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "gdown"])
     import gdown
-
-# Google Drive ファイルID
+MODEL_FILE = "mania-model.Q8_K_M.gguf"
 FILE_ID = "1eIs-Zth6FQVwSTvz5yhZoPZGDWptnuzk"
-GGUF_PATH = "mania-model.Q8_K_M.gguf"
 
-if not os.path.exists(GGUF_PATH):
+# モデルが存在しない場合のみダウンロード
+if not os.path.exists(MODEL_FILE):
     print("Downloading GGUF MODEL from Google Drive...")
-    gdown.download(id=FILE_ID, output=GGUF_PATH, quiet=False)
-    
+    gdown.download(id=FILE_ID, output=MODEL_FILE, quiet=False)
+
+print(f"Loading GGUF model from: {MODEL_FILE}")
+
 # ====== 設定 ======
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-GGUF_PATH = "mania-model.Q8_K_M.gguf"
+GGUF_PATH = "/workspace/mania-model.Q8_K_M.gguf"
 
 MAX_NEW_TOKENS = 100
 STREAM_DELAY = 0.3
