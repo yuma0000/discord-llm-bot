@@ -12,9 +12,28 @@ from discord.ext import commands
 from discord import app_commands
 from llama_cpp import Llama
 
+import os
+import subprocess
+import sys
+
+# ======== Google Drive から gdown でダウンロード ========
+try:
+    import gdown
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "gdown"])
+    import gdown
+
+# Google Drive ファイルID
+FILE_ID = "1eIs-Zth6FQVwSTvz5yhZoPZGDWptnuzk"
+GGUF_PATH = "mania-model.Q8_K_M.gguf"
+
+if not os.path.exists(GGUF_PATH):
+    print("Downloading GGUF MODEL from Google Drive...")
+    gdown.download(id=FILE_ID, output=GGUF_PATH, quiet=False)
+    
 # ====== 設定 ======
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-GGUF_PATH = "model/mania-model.Q8_K_M.gguf"
+GGUF_PATH = "mania-model.Q8_K_M.gguf"
 
 MAX_NEW_TOKENS = 100
 STREAM_DELAY = 0.3
