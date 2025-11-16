@@ -7,6 +7,7 @@ import json
 import asyncio
 import logging
 import discord
+import wget
 from discord.ext import commands
 from discord import app_commands
 from llama_cpp import Llama
