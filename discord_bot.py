@@ -50,7 +50,7 @@ GEN_CONFIG = {
 }
 
 RUNTIME_CONFIG = {
-    "n_threads": 8,
+    "n_threads": 1,
     "n_gpu_layers": 0,
     "n_ctx": 4096
 }
