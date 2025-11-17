@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  ai-server:
+    build: .
+    container_name: discord-llm-bot
+    ports:
+      - "8000:8000"     # WebUI
+      - "11434:11434"   # Ollama API
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+    restart: always
