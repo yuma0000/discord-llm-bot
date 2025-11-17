@@ -16,7 +16,7 @@ import subprocess
 import sys
     
 # ====== 設定 ======
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "MTM1MDgwMjc0MzYxODY5OTMwNA.Gdo19O.nkUdnBVvJ6WfsM7GaUOf3GxbJlkeSdsUYfqZ-k")
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 GGUF_PATH = "mania-model.Q8_K_M.gguf"
 
 MAX_NEW_TOKENS = 100
