@@ -1,280 +1,178 @@
-# ==========================================================
-#  Discord Bot (GGUF / llama.cpp 高速版)
-# ==========================================================
 import os
-import re
-import json
-import asyncio
 import logging
 import discord
-import wget
 from discord.ext import commands
-from discord import app_commands
-from llama_cpp import Llama
+from ollama import AsyncClient, ResponseError
+import asyncio
 
-import os
-import subprocess
-import sys
-    
-if not os.path.exists("mania-model.Q8_K_M.gguf"):
-    print("Downloading GGUF MODEL")
-    url = 'https://mt.f5.si/mania-model.Q8_K_M.gguf'
-    output_path = 'mania-model.Q8_K_M.gguf'
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log = logging.getLogger('discord_bot')
+
+# Environment Variables
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "MTM1MDgwMjc0MzYxODY5OTMwNA.Gdo19O.nkUdnBVvJ6WfsM7GaUOf3GxbJlkeSdsUYfqZ-k")
+OLLAMA_HOST_URL = os.getenv("OLLAMA_HOST_URL", "http://localhost:11434")
+
+# Model Configuration (Defined in .env as well)
+# Use 'mania' as the default main model as per your build steps
+DEFAULT_MODEL_NAME = os.getenv("DEFAULT_MODEL_NAME", "mania")
+# Use a common fallback model if needed (e.g., for a 'free' mode)
+FALLBACK_MODEL_NAME = os.getenv("FALLBACK_MODEL_NAME", "llama3") 
+
+# Check for required configuration
+if not DISCORD_TOKEN:
+    log.error("DISCORD_BOT_TOKEN not found in environment variables. Exiting.")
+    exit()
+
+# Initialize Discord Bot
+intents = discord.Intents.default()
+intents.message_content = True # Required for reading message content in prefix commands
+bot = commands.Bot(command_prefix='!', intents=intents)
+
+# Initialize Ollama Client
+# Note: The Ollama client is initialized globally and set to async mode.
+try:
+    ollama_client = AsyncClient(host=OLLAMA_HOST_URL)
+    log.info(f"Ollama client initialized, connecting to: {OLLAMA_HOST_URL}")
+except Exception as e:
+    log.error(f"Failed to initialize Ollama client: {e}")
+    # Continue running the Discord bot, but generation commands will fail.
+
+# --- Ollama API Functions ---
+
+async def generate_stream(prompt: str, is_free_mode: bool):
+    """
+    An asynchronous generator that yields chunks of the LLM response.
+
+    Args:
+        prompt (str): The user's query.
+        is_free_mode (bool): If True, use the FALLBACK_MODEL_NAME.
+
+    Yields:
+        str: Chunks of the generated response.
+    """
+    model_name = FALLBACK_MODEL_NAME if is_free_mode else DEFAULT_MODEL_NAME
+    log.info(f"Generating response for model: {model_name}...")
 
     try:
-        wget.download(url, out=output_path)
-        print("\nダウンロード成功:", output_path)
-    except Exception as e:
-        print("wget モジュールで失敗:", e)
-print(f"Loading GGUF model from: mania-model.Q8_K_M.gguf")
-
-# ====== 設定 ======
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "MTM1MDgwMjc0MzYxODY5OTMwNA.Gdo19O.nkUdnBVvJ6WfsM7GaUOf3GxbJlkeSdsUYfqZ-k")
-GGUF_PATH = "mania-model.Q8_K_M.gguf"
-
-MAX_NEW_TOKENS = 100
-STREAM_DELAY = 0.3
-MAX_DISCORD_LENGTH = 1800
-
-# ====== 生成パラメータ設定 ======
-GEN_CONFIG = {
-    "max_tokens": 256,
-    "temperature": 1.0,
-    "top_p": 0.70,
-    "top_k": 40,
-    "repeat_penalty": 1.05,
-    "stop": ["</s>"]
-}
-    
-RUNTIME_CONFIG = {
-    "n_threads": 8,
-    "n_gpu_layers": 24,
-    "n_ctx": 4096
-}
-
-NUMERIC_PARAMS = {
-    "max_tokens": int,
-    "temperature": float,
-    "top_p": float,
-    "top_k": int,
-    "repeat_penalty": float,
-    "stop": list,
-}
-
-# ====== ログ設定 ======
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[logging.StreamHandler()],
-    force=True
-)
-log = logging.getLogger("LLM-Bot")
-
-# ====== 検索データ読み込み ======
-def load_search_results(file_path):
-    search_list = []
-    with open(file_path, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                search_list.append(json.loads(line))
-            except json.JSONDecodeError:
-                continue
-    return search_list
-
-SEARCH_RESULTS = load_search_results("dataset.jsonl")
-
-# ====== llama.cpp モデルロード ======
-log.info(f"Loading GGUF model from: {GGUF_PATH}")
-try:
-    llm = Llama(
-        model_path=GGUF_PATH,
-        n_ctx=RUNTIME_CONFIG["n_ctx"],
-        n_threads=RUNTIME_CONFIG["n_threads"],
-        n_gpu_layers=RUNTIME_CONFIG["n_gpu_layers"],
-        verbose=False
-    )
-    print("モデルロード成功")
-except Exception as e:
-    print("Python 側で捕捉した例外:", e)
-
-log.info("GGUF model loaded successfully!")
-
-
-# ====== ストリーミング生成 ======
-async def generate_stream(prompt: str, match_cat):
-    output = llm(
-        prompt,
-        max_tokens=GEN_CONFIG["max_tokens"],
-        temperature=GEN_CONFIG["temperature"],
-        top_p=GEN_CONFIG["top_p"],
-        top_k=GEN_CONFIG["top_k"],
-        repeat_penalty=GEN_CONFIG["repeat_penalty"],
-        stop=GEN_CONFIG["stop"]
-    )
-
-    text = output["choices"][0]["text"]
-
-    if match_cat and text.startswith(prompt):
-        text = text[len(prompt):].lstrip()
-
-    if text == "":
-        text = "空の文字が生成されてしまった😢"
-
-    for i in range(0, len(text), 80):
-        yield text[i:i+80]
-        await asyncio.sleep(STREAM_DELAY)
-
-
-# ====== Discord Bot ======
-class ManiaBot(commands.Bot):
-    def __init__(self):
-        intents = discord.Intents.default()
-        intents.message_content = True
-        intents.messages = True
-        intents.guild_messages = True
-        super().__init__(command_prefix="!", intents=intents)
-
-    async def setup_hook(self):
-        try:
-            synced = await self.tree.sync()
-            log.info(f"Commands synced globally ({len(synced)} commands).")
-        except Exception:
-            log.exception("Command sync failed")
-
-    async def on_ready(self):
-        log.info(f"Logged in as {self.user} (ID: {self.user.id})")
-        log.info("Slash commands `/mania` and `/free` ready.")
-
-
-bot = ManiaBot()
-
-async def discord_generate(interaction: discord.Interaction, prompt: str, reply_to: str, is_base: bool = True):
-    await interaction.response.send_message("生成中です…")
-    msg = await interaction.original_response()
-
-    collected = ""
-    async for chunk in generate_stream(prompt, is_base):
-        collected += chunk
-        await msg.edit(
-            content=(collected[:MAX_DISCORD_LENGTH] + "…")
-            if len(collected) > MAX_DISCORD_LENGTH else collected
+        # The Ollama Python client supports asynchronous streaming
+        stream = await ollama_client.generate(
+            model=model_name,
+            prompt=prompt,
+            stream=True
         )
+        
+        # Stream the content chunks
+        async for chunk in stream:
+            if 'response' in chunk:
+                yield chunk['response']
+            
+    except ResponseError as e:
+        log.error(f"Ollama API Error ({model_name}): {e}")
+        yield f"⚠️ Ollama API Error: Could not generate response. ({e})"
+    except Exception as e:
+        log.error(f"General generation error: {e}")
+        yield f"❌ An unexpected error occurred during generation: {e}"
 
-    if reply_to:
-        channel = interaction.channel
-        try:
-            target = await channel.fetch_message(int(reply_to))
-            await target.reply(collected)
-        except:
-            await msg.edit(content=collected + "\n⚠️返信対象メッセージが見つかりませんでした。")
+
+async def discord_generate(interaction_or_ctx, prompt_message: discord.Message | None, prompt_str: str | None, is_free_mode: bool):
+    """
+    Handles the full Discord interaction flow for generation.
+
+    This function handles both ContextMenu (interaction) and Prefix (Context) commands.
+    """
+    
+    # 1. Determine the source and initial message
+    if isinstance(interaction_or_ctx, discord.Interaction):
+        # Context Menu Command
+        await interaction_or_ctx.response.defer() # Acknowledge the interaction
+        source = interaction_or_ctx.followup
+        # If the user used the context menu on a message, that message is the prompt
+        prompt_text = prompt_message.content if prompt_message else "No message content found."
+        
     else:
-        await msg.edit(content=collected)
- 
-# ====== /mania ======
-@bot.tree.command(name="mania", description="ウェブマニアとして回答します。")
-@app_commands.describe(prompt="質問内容を入力してください。", reply_to="返信したいメッセージID")
-async def mania_slash(interaction: discord.Interaction, prompt: str, reply_to: str = None):
-    text = f"システム:「:arigato: :boost: :ganbare: :gohan: :idai: :igyou: :iine: :imakita: :kaibun: :kami: :kaso: :kusa: :kyawa: :love: :maji: :mania: :nazo: :oj: :otukare: :owata: :oyasumi: :paooon: :saikou: :sorena: :tadaima: :tasikani: :tensai: :tya: :wakame: :wakaru: :wakayama: :wara: :webpaon: :yasume:」これを覚えてね\nユーザー:{prompt}\nウェブマニア:"
-    await discord_generate(interaction, text, reply_to, True)
-
-# ====== /free ======
-@bot.tree.command(name="free", description="自由に質問できます。")
-@app_commands.describe(prompt="質問内容を入力してください。")
-async def free_slash(interaction: discord.Interaction, prompt: str):
-    await discord_generate(interaction, prompt, None, False)
-
-# ====== /search コマンド ======
-@bot.tree.command(name="search", description="キーワードに基づいて検索結果を返します。")
-@app_commands.describe(keyword="検索したいキーワードを入力してください。")
-async def search_slash(interaction: discord.Interaction, keyword: str):
-    await interaction.response.send_message("検索中… ⏳")
-    msg = await interaction.original_response()
-
-    keyword_lower = keyword.lower()
-    results = []
-
-    for entry in SEARCH_RESULTS:
-        instr = str(entry.get("instruction", "")).lower()
-        out = str(entry.get("output", "")).lower()
-        if keyword_lower in instr or keyword_lower in out:
-            results.append(entry)
-
-    if not results:
-        await msg.edit(content=f"⚠️ キーワード `{keyword}` に一致する結果は見つかりませんでした。")
+        # Prefix Command Context (ctx)
+        source = interaction_or_ctx
+        prompt_text = prompt_str
+    
+    if not prompt_text or prompt_text == "":
+        await source.send("Prompt cannot be empty. Please provide text to analyze.")
         return
 
-    text = ""
-    for r in results:
-        text += f"{r.get('instruction','')}\n> {r.get('output','')}\n\n"
-        if len(text) > 1800:
-            text = text[:1800] + "…"
+    # 2. Start generation and initial response
+    # Use 'await source.send' for both interaction.followup and ctx.send
+    initial_message = await source.send(f"🤖 **Generating ({'Free Mode' if is_free_mode else 'Mania Model'})...**")
+    
+    full_response = ""
+    last_sent_content = ""
+    chunk_count = 0
+    
+    # 3. Stream content
+    async for chunk in generate_stream(prompt_text, is_free_mode):
+        full_response += chunk
+        chunk_count += 1
+        
+        # Edit the message every N chunks (or every 500 characters) to avoid rate limits
+        # and minimize API calls while maintaining a streaming feel.
+        if len(full_response) - len(last_sent_content) > 500 or chunk_count % 10 == 0:
+             # Ensure the edited content is not empty
+            if full_response.strip():
+                try:
+                    await initial_message.edit(content=full_response)
+                    last_sent_content = full_response
+                except discord.HTTPException as e:
+                    # Ignore silent errors like "Message content is the same"
+                    if "Message content is the same" not in str(e):
+                        log.warning(f"Failed to edit message: {e}")
+        
+        # If full_response is too long, stop editing and send the rest
+        if len(full_response) > 1900: # Discord limit is 2000 chars
+            await initial_message.edit(content=full_response[:1900] + "\n\n... (Truncated)")
             break
 
-    await msg.edit(content=text)
+    # 4. Final update
+    if full_response.strip() and full_response != last_sent_content:
+        await initial_message.edit(content=full_response)
 
-@bot.tree.command(name="settings", description="LLM の生成パラメータを変更します。")
-@app_commands.describe(param="パラメータ名", value="値")
-async def settings_slash(interaction: discord.Interaction, param: str, value: str = None):
-    param = param.lower()
+    log.info(f"Generation complete for prompt: '{prompt_text[:50]}...'")
 
-    if param == "show":
-        text = "**現在の生成パラメータ:**\n"
-        for k, v in GEN_CONFIG.items():
-            text += f"- {k}: {v}\n"
-        await interaction.response.send_message(text)
-        return
 
-    if param not in GEN_CONFIG:
-        await interaction.response.send_message(f"⚠️ `{param}` は設定できません", ephemeral=True)
-        return
+# --- Discord Commands ---
 
-    if value is None:
-        await interaction.response.send_message(f"⚠️ `{param}` に新しい値を指定してください", ephemeral=True)
-        return
-
-    convert = NUMERIC_PARAMS.get(param, str)
-
+@bot.event
+async def on_ready():
+    """Bot initialization event."""
+    log.info(f'{bot.user} has connected to Discord!')
+    
+    # Sync slash commands and context menus
     try:
-        if param == "stop":
-            v = [s.strip() for s in value.split(",")]
-        else:
-            v = convert(value)
-    except Exception:
-        await interaction.response.send_message(f"⚠️ `{param}` を `{convert.__name__}` に変換できません", ephemeral=True)
-        return
-
-    GEN_CONFIG[param] = v
-    await interaction.response.send_message(f"🔧 `{param}` を `{v}` に変更しました。")
-
-@bot.tree.command(name="name", description="AIくん？の名前を変える")
-@app_commands.describe(name="名前を入れるのだ！")
-async def setname(interaction: discord.Interaction, name: str):
-    try:
-        await interaction.client.user.edit(username=name)
-        await interaction.response.send_message(f"名前を **{name}** に変更しました")
+        synced = await bot.tree.sync()
+        log.info(f"Synced {len(synced)} command(s).")
     except Exception as e:
-        await interaction.response.send_message(f"変更エラー: {e}", ephemeral=True)
+        log.error(f"Failed to sync commands: {e}")
 
-    await interaction.response.send_message("⚠️ 無効なパラメータです。")
+# ====== Context Menu: 'mania' Model Generation ======
+# This command appears in the right-click menu of a user message.
+@bot.tree.context_menu(name="Generate with Mania")
+async def mania_app(interaction: discord.Interaction, message: discord.Message):
+    """Generates a response using the Mania model based on the selected message content."""
+    # The 'message' object is the selected message, containing the prompt
+    await discord_generate(interaction, message, None, False) # False = use DEFAULT_MODEL_NAME ('mania')
 
-#======= アプリコマンド =======
-@bot.tree.context_menu(name="mania")
-async def mania_app(interaction: discord.Interaction, prompt: discord.Message):
-    await discord_generate(interaction, f"ユーザー:{prompt}\nウェブマニア:", None, True)
+# ====== !mania Prefix Command: 'mania' Model Generation ======
+@bot.command(name="mania", help="Generate a response using the Mania model.")
+async def mania_prefix(ctx: commands.Context, *, prompt: str):
+    """Generates a response using the Mania model."""
+    # ctx is the command context, prompt is the remaining string
+    await discord_generate(ctx, None, prompt, False) # False = use DEFAULT_MODEL_NAME ('mania')
 
-@bot.tree.context_menu(name="free")
-async def mania_app(interaction: discord.Interaction, prompt: discord.Message):
-    await discord_generate(interaction, prompt, None, False)
 
-# ====== !mania プレフィックス ======
-@bot.command(name="mania")
-async def mania_prefix(ctx, *, prompt: str):
-    await ctx.send("生成中です…")
-    async for chunk in generate_stream(prompt, False):
-        await ctx.send(chunk)
+# ====== !free Prefix Command: Fallback Model Generation (Example) ======
+@bot.command(name="free", help="Generate a response using the Fallback model (llama3).")
+async def free_prefix(ctx: commands.Context, *, prompt: str):
+    """Generates a response using the Fallback model (e.g., llama3)."""
+    # ctx is the command context, prompt is the remaining string
+    await discord_generate(ctx, None, prompt, True) # True = use FALLBACK_MODEL_NAME ('llama3')
 
 # ====== bot 実行 ======
 if __name__ == "__main__":
