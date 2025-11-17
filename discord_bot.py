@@ -91,7 +91,7 @@ async def generate_stream(prompt: str, match_cat):
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(model.device)
     output_ids = model.generate(
         input_ids,
-        max_new_tokens=GEN_CONFIG["max_new_tokens"],
+        max_new_tokens=GEN_CONFIG["max_tokens"],
         temperature=GEN_CONFIG["temperature"],
         top_p=GEN_CONFIG["top_p"],
         top_k=GEN_CONFIG["top_k"],
@@ -158,7 +158,7 @@ async def discord_generate(interaction: discord.Interaction, prompt: str, reply_
 @bot.tree.command(name="mania", description="ウェブマニアとして回答します。")
 @app_commands.describe(prompt="質問内容を入力してください。", reply_to="返信したいメッセージID")
 async def mania_slash(interaction: discord.Interaction, prompt: str, reply_to: str = None):
-    text = f"システム:「:arigato: :boost: :ganbare: :gohan: :idai: :igyou: :iine: :imakita: :kaibun: :kami: :kaso: :kusa: :kyawa: :love: :maji: :mania: :nazo: :oj: :otukare: :owata: :oyasumi: :paooon: :saikou: :sorena: :tadaima: :tasikani: :tensai: :tya: :wakame: :wakaru: :wakayama: :wara: :webpaon: :yasume:」これを覚えてね\nユーザー:{prompt}\nウェブマニア:"
+    text = f"ウェブマニア:":arigato: :boost: :ganbare: :gohan: :idai: :igyou: :iine: :imakita: :kaibun: :kami: :kaso: :kusa: :kyawa: :love: :maji: :mania: :nazo: :oj: :otukare: :owata: :oyasumi: :paooon: :saikou: :sorena: :tadaima: :tasikani: :tensai: :tya: :wakame: :wakaru: :wakayama: :wara: :webpaon: :yasume:"これを覚えてね\nユーザー:{prompt}\nウェブマニア:"
     await discord_generate(interaction, text, reply_to, True)
 
 # ====== /free ======
