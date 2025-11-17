@@ -36,8 +36,8 @@ GEN_CONFIG = {
 }
     
 RUNTIME_CONFIG = {
-    "n_threads": 16,
-    "n_gpu_layers": 24,
+    "n_threads": 8,
+    "n_gpu_layers": 0,
     "n_ctx": 4096
 }
 
@@ -66,7 +66,8 @@ model = AutoModelForCausalLM.from_pretrained(
     HF_MODEL_ID,
     use_auth_token=HF_TOKEN,
     torch_dtype=torch.float16,
-    device_map="auto"
+    device_map="auto",
+    low_cpu_mem_usage=True,
 )
 log.info("モデルロード成功")
 
@@ -89,16 +90,20 @@ SEARCH_RESULTS = load_search_results("dataset.jsonl")
 # ====== ストリーミング生成 ======
 async def generate_stream(prompt: str, match_cat):
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(model.device)
-    output_ids = model.generate(
-        input_ids,
-        max_new_tokens=GEN_CONFIG["max_tokens"],
-        temperature=GEN_CONFIG["temperature"],
-        top_p=GEN_CONFIG["top_p"],
-        top_k=GEN_CONFIG["top_k"],
-        repetition_penalty=GEN_CONFIG["repeat_penalty"]
-    )
+    with torch.inference_mode():
+        output_ids = model.generate(
+            input_ids,
+            max_new_tokens=GEN_CONFIG["max_tokens"],
+            temperature=GEN_CONFIG["temperature"],
+            top_p=GEN_CONFIG["top_p"],
+            top_k=GEN_CONFIG["top_k"],
+            repetition_penalty=GEN_CONFIG["repeat_penalty"],
+            do_sample=True,
+            pad_token_id=tokenizer.eos_token_id,
+            use_cache=True,
+        )
     text = tokenizer.decode(output_ids[0], skip_special_tokens=True)
-
+    
     if match_cat and text.startswith(prompt):
         text = text[len(prompt):].lstrip()
 
@@ -158,7 +163,7 @@ async def discord_generate(interaction: discord.Interaction, prompt: str, reply_
 @bot.tree.command(name="mania", description="ウェブマニアとして回答します。")
 @app_commands.describe(prompt="質問内容を入力してください。", reply_to="返信したいメッセージID")
 async def mania_slash(interaction: discord.Interaction, prompt: str, reply_to: str = None):
-    text = f"ウェブマニア:「:arigato: :boost: :ganbare: :gohan: :idai: :igyou: :iine: :imakita: :kaibun: :kami: :kaso: :kusa: :kyawa: :love: :maji: :mania: :nazo: :oj: :otukare: :owata: :oyasumi: :paooon: :saikou: :sorena: :tadaima: :tasikani: :tensai: :tya: :wakame: :wakaru: :wakayama: :wara: :webpaon: :yasume:」これを覚えてね\nユーザー:{prompt}\nウェブマニア:"
+    text = f"スタンプ:「:arigato: :boost: :ganbare: :gohan: :idai: :igyou: :iine: :imakita: :kaibun: :kami: :kaso: :kusa: :kyawa: :love: :maji: :mania: :nazo: :oj: :otukare: :owata: :oyasumi: :paooon: :saikou: :sorena: :tadaima: :tasikani: :tensai: :tya: :wakame: :wakaru: :wakayama: :wara: :webpaon: :yasume:」これを覚えて下さい。\nユーザー:{prompt}\nウェブマニア:"
     await discord_generate(interaction, text, reply_to, True)
 
 # ====== /free ======
