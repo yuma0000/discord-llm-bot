@@ -1,5 +1,4 @@
 discord.py>=2.2.3,<2.4.0
-wget
 fastapi
 uvicorn[standard]
 requests
