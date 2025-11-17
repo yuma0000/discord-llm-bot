@@ -9,7 +9,8 @@ import logging
 import discord
 from discord.ext import commands
 from discord import app_commands
-from llama_cpp import Llama
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import torch
 
 import os
 import subprocess
@@ -17,7 +18,8 @@ import sys
     
 # ====== 設定 ======
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-GGUF_PATH = "mania-model.Q8_K_M.gguf"
+HF_MODEL_ID = os.getenv("HF_MODEL_ID", "https://huggingface.co/yustudiojp/mania-model/tree/main")
+HF_TOKEN = os.getenv("HF_TOKEN")
 
 MAX_NEW_TOKENS = 100
 STREAM_DELAY = 0.3
@@ -57,6 +59,17 @@ logging.basicConfig(
 )
 log = logging.getLogger("LLM-Bot")
 
+# ====== Hugging Face モデルロード ======
+log.info(f"Loading Hugging Face model: {HF_MODEL_ID}")
+tokenizer = AutoTokenizer.from_pretrained(HF_MODEL_ID, use_auth_token=HF_TOKEN)
+model = AutoModelForCausalLM.from_pretrained(
+    HF_MODEL_ID,
+    use_auth_token=HF_TOKEN,
+    torch_dtype=torch.float16,
+    device_map="auto"
+)
+log.info("モデルロード成功")
+
 # ====== 検索データ読み込み ======
 def load_search_results(file_path):
     search_list = []
@@ -73,36 +86,18 @@ def load_search_results(file_path):
 
 SEARCH_RESULTS = load_search_results("dataset.jsonl")
 
-# ====== llama.cpp モデルロード ======
-log.info(f"Loading GGUF model from: {GGUF_PATH}")
-try:
-    llm = Llama(
-        model_path=GGUF_PATH,
-        n_ctx=RUNTIME_CONFIG["n_ctx"],
-        n_threads=RUNTIME_CONFIG["n_threads"],
-        n_gpu_layers=RUNTIME_CONFIG["n_gpu_layers"],
-        verbose=False
-    )
-    print("モデルロード成功")
-except Exception as e:
-    print("Python 側で捕捉した例外:", e)
-
-log.info("GGUF model loaded successfully!")
-
-
 # ====== ストリーミング生成 ======
 async def generate_stream(prompt: str, match_cat):
-    output = llm(
-        prompt,
-        max_tokens=GEN_CONFIG["max_tokens"],
+    input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(model.device)
+    output_ids = model.generate(
+        input_ids,
+        max_new_tokens=GEN_CONFIG["max_new_tokens"],
         temperature=GEN_CONFIG["temperature"],
         top_p=GEN_CONFIG["top_p"],
         top_k=GEN_CONFIG["top_k"],
-        repeat_penalty=GEN_CONFIG["repeat_penalty"],
-        stop=GEN_CONFIG["stop"]
+        repetition_penalty=GEN_CONFIG["repetition_penalty"]
     )
-
-    text = output["choices"][0]["text"]
+    text = tokenizer.decode(output_ids[0], skip_special_tokens=True)
 
     if match_cat and text.startswith(prompt):
         text = text[len(prompt):].lstrip()
@@ -113,7 +108,6 @@ async def generate_stream(prompt: str, match_cat):
     for i in range(0, len(text), 80):
         yield text[i:i+80]
         await asyncio.sleep(STREAM_DELAY)
-
 
 # ====== Discord Bot ======
 class ManiaBot(commands.Bot):
