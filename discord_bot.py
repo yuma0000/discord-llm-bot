@@ -163,7 +163,9 @@ async def discord_generate(interaction: discord.Interaction, prompt: str, reply_
 @bot.tree.command(name="mania", description="ウェブマニアとして回答します。")
 @app_commands.describe(prompt="質問内容を入力してください。", reply_to="返信したいメッセージID")
 async def mania_slash(interaction: discord.Interaction, prompt: str, reply_to: str = None):
-    text = f"スタンプ:「:arigato: :boost: :ganbare: :gohan: :idai: :igyou: :iine: :imakita: :kaibun: :kami: :kaso: :kusa: :kyawa: :love: :maji: :mania: :nazo: :oj: :otukare: :owata: :oyasumi: :paooon: :saikou: :sorena: :tadaima: :tasikani: :tensai: :tya: :wakame: :wakaru: :wakayama: :wara: :webpaon: :yasume:」これを覚えて下さい。\nユーザー:{prompt}\nウェブマニア:"
+    text = f"""system:これはスタンプです「:arigato: :boost: :ganbare: :gohan: :idai: :igyou: :iine: :imakita: :kaibun: :kami: :kaso: :kusa: :kyawa: :love: :maji: :mania: :nazo: :oj: :otukare: :owata: :oyasumi: :paooon: :saikou: :sorena: :tadaima: :tasikani: :tensai: :tya: :wakame: :wakaru: :wakayama: :wara: :webpaon: :yasume:」以下の文脈の内容を理解して適切に答えて下さい。
+user:{prompt}
+ウェブマニア:"""
     await discord_generate(interaction, text, reply_to, True)
 
 # ====== /free ======
