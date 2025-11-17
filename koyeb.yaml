@@ -1,0 +1,12 @@
+services:
+  - name: vscode
+    env:
+      PORT: 8080
+    ports:
+      - port: 8080
+        http_options:
+          healthcheck:
+            path: /
+    instance_type: small
+    routes:
+      - path: /
