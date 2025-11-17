@@ -95,7 +95,7 @@ async def generate_stream(prompt: str, match_cat):
         temperature=GEN_CONFIG["temperature"],
         top_p=GEN_CONFIG["top_p"],
         top_k=GEN_CONFIG["top_k"],
-        repetition_penalty=GEN_CONFIG["repetition_penalty"]
+        repetition_penalty=GEN_CONFIG["repeat_penalty"]
     )
     text = tokenizer.decode(output_ids[0], skip_special_tokens=True)
 
