@@ -18,7 +18,7 @@ import sys
     
 # ====== 設定 ======
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-HF_MODEL_ID = os.getenv("HF_MODEL_ID", "https://huggingface.co/yustudiojp/mania-model/tree/main")
+HF_MODEL_ID = os.getenv("HF_MODEL_ID", "yustudiojp/mania-model")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 MAX_NEW_TOKENS = 100
