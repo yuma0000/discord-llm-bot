@@ -7,7 +7,6 @@ import json
 import asyncio
 import logging
 import discord
-import wget
 from discord.ext import commands
 from discord import app_commands
 from llama_cpp import Llama
@@ -16,18 +15,6 @@ import os
 import subprocess
 import sys
     
-if not os.path.exists("mania-model.Q8_K_M.gguf"):
-    print("Downloading GGUF MODEL")
-    url = 'https://mt.f5.si/mania-model.Q8_K_M.gguf'
-    output_path = 'mania-model.Q8_K_M.gguf'
-
-    try:
-        wget.download(url, out=output_path)
-        print("\nダウンロード成功:", output_path)
-    except Exception as e:
-        print("wget モジュールで失敗:", e)
-print(f"Loading GGUF model from: mania-model.Q8_K_M.gguf")
-
 # ====== 設定 ======
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "MTM1MDgwMjc0MzYxODY5OTMwNA.Gdo19O.nkUdnBVvJ6WfsM7GaUOf3GxbJlkeSdsUYfqZ-k")
 GGUF_PATH = "mania-model.Q8_K_M.gguf"
