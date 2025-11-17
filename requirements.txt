@@ -3,5 +3,3 @@ wget
 fastapi
 uvicorn[standard]
 requests
-ollama
-ollama-webui
