@@ -1,7 +1,7 @@
 import os
 import urllib.request
 
-MODEL_URL = "https://mt.f5.si/mania-model.Q8_K_M.gguf"
+MODEL_URL = "https://huggingface.co/yustudiojp/mania-model/resolve/main/mania-model.Q8_K_M.gguf?download=true"
 MODEL_PATH = os.path.join(os.getcwd(), "mania-model.Q8_K_M.gguf")
 
 if not os.path.exists(MODEL_PATH):
