@@ -1,6 +1,5 @@
+llama_cpp_python
 discord.py>=2.2.3,<2.4.0
 fastapi
 uvicorn[standard]
 requests
-ollama
-ollama-webui
