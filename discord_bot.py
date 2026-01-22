@@ -9,46 +9,11 @@ import logging
 import discord
 from discord.ext import commands
 from discord import app_commands
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
-
-import os
 import subprocess
 import sys
     
 # ====== 設定 ======
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-HF_MODEL_ID = os.getenv("HF_MODEL_ID", "yustudiojp/mania-model")
-HF_TOKEN = os.getenv("HF_TOKEN")
-
-MAX_NEW_TOKENS = 100
-STREAM_DELAY = 0.3
-MAX_DISCORD_LENGTH = 1800
-
-# ====== 生成パラメータ設定 ======
-GEN_CONFIG = {
-    "max_tokens": 256,
-    "temperature": 1.0,
-    "top_p": 0.70,
-    "top_k": 40,
-    "repeat_penalty": 1.05,
-    "stop": ["</s>"]
-}
-    
-RUNTIME_CONFIG = {
-    "n_threads": 8,
-    "n_gpu_layers": 0,
-    "n_ctx": 4096
-}
-
-NUMERIC_PARAMS = {
-    "max_tokens": int,
-    "temperature": float,
-    "top_p": float,
-    "top_k": int,
-    "repeat_penalty": float,
-    "stop": list,
-}
 
 # ====== ログ設定 ======
 logging.basicConfig(
@@ -58,18 +23,6 @@ logging.basicConfig(
     force=True
 )
 log = logging.getLogger("LLM-Bot")
-
-# ====== Hugging Face モデルロード ======
-log.info(f"Loading Hugging Face model: {HF_MODEL_ID}")
-tokenizer = AutoTokenizer.from_pretrained(HF_MODEL_ID, use_auth_token=HF_TOKEN)
-model = AutoModelForCausalLM.from_pretrained(
-    HF_MODEL_ID,
-    use_auth_token=HF_TOKEN,
-    torch_dtype=torch.float16,
-    device_map="auto",
-    low_cpu_mem_usage=True,
-)
-log.info("モデルロード成功")
 
 # ====== 検索データ読み込み ======
 def load_search_results(file_path):
@@ -89,30 +42,7 @@ SEARCH_RESULTS = load_search_results("dataset.jsonl")
 
 # ====== ストリーミング生成 ======
 async def generate_stream(prompt: str, match_cat):
-    input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(model.device)
-    with torch.inference_mode():
-        output_ids = model.generate(
-            input_ids,
-            max_new_tokens=GEN_CONFIG["max_tokens"],
-            temperature=GEN_CONFIG["temperature"],
-            top_p=GEN_CONFIG["top_p"],
-            top_k=GEN_CONFIG["top_k"],
-            repetition_penalty=GEN_CONFIG["repeat_penalty"],
-            do_sample=True,
-            pad_token_id=tokenizer.eos_token_id,
-            use_cache=True,
-        )
-    text = tokenizer.decode(output_ids[0], skip_special_tokens=True)
-    
-    if match_cat and text.startswith(prompt):
-        text = text[len(prompt):].lstrip()
-
-    if text == "":
-        text = "空の文字が生成されてしまった😢"
-
-    for i in range(0, len(text), 80):
-        yield text[i:i+80]
-        await asyncio.sleep(STREAM_DELAY)
+    return "只今停止中です。"
 
 # ====== Discord Bot ======
 class ManiaBot(commands.Bot):
@@ -133,7 +63,6 @@ class ManiaBot(commands.Bot):
     async def on_ready(self):
         log.info(f"Logged in as {self.user} (ID: {self.user.id})")
         log.info("Slash commands `/mania` and `/free` ready.")
-
 
 bot = ManiaBot()
 
@@ -247,6 +176,14 @@ async def setname(interaction: discord.Interaction, name: str):
         await interaction.response.send_message(f"変更エラー: {e}", ephemeral=True)
 
     await interaction.response.send_message("⚠️ 無効なパラメータです。")
+
+@bot.tree.command(name="プロフィール", description="自身のプロフィールを設定できるよ！")
+@app_commands.describe(text="入力してね")
+async def setprofile(interaction: discord.Interaction, profile: str):
+    try:
+        await interaction.response.send_message(f"設定しました。", ephemeral=True)
+    except Exception as e:
+        await interaction.response.send_message(f"エラーが起きました。")
 
 #======= アプリコマンド =======
 @bot.tree.context_menu(name="mania")
