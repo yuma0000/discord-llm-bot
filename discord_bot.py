@@ -1,4 +1,3 @@
-!pip install discord psycopg2-binary llama_cpp_python-0.3.16-cp312-cp312-linux_x86_64.whl
 # ==========================================================
 #  Discord Bot (GGUF / llama.cpp 高速版)
 # ==========================================================
