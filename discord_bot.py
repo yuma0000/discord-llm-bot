@@ -1,4 +1,4 @@
-!pip install discord llama_cpp_python-0.3.16-cp312-cp312-linux_x86_64.whl
+!pip install discord psycopg2-binary llama_cpp_python-0.3.16-cp312-cp312-linux_x86_64.whl
 # ==========================================================
 #  Discord Bot (GGUF / llama.cpp 高速版)
 # ==========================================================
@@ -44,52 +44,55 @@ NUMERIC_PARAMS = {
 }
 
 # ====== MariaDB 設定 ======
-DB_PATH = "discord_bot.db"
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
-# ====== MariaDB ======
-import sqlite3
+SUPABASE_DB_CONFIG = {
+    "host": "db.rqipryukohyiurealjwg.supabase.co",
+    "database": "postgres",
+    "user": "postgres",
+    "password": "tFQN7&%Ev6?//Sp",
+    "port": 5432,
+    "sslmode": "require",
+}
 
-conn = sqlite3.connect(DB_PATH)
-cur = conn.cursor()
-
-cur.execute("""
-CREATE TABLE IF NOT EXISTS profiles (
-    user_id TEXT PRIMARY KEY,
-    intro TEXT NOT NULL
-)
-""")
-
-conn.commit()
-conn.close()
+# ====== supabase ======
+def get_db_conn():
+    return psycopg2.connect(
+        host=SUPABASE_DB_CONFIG["host"],
+        database=SUPABASE_DB_CONFIG["database"],
+        user=SUPABASE_DB_CONFIG["user"],
+        password=SUPABASE_DB_CONFIG["password"],
+        port=SUPABASE_DB_CONFIG["port"],
+        sslmode=SUPABASE_DB_CONFIG["sslmode"],
+    )
 
 print("DB初期化完了")
 
 def save_profile(user_id: str, intro: str):
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_conn()
     cur = conn.cursor()
-
     cur.execute("""
-    INSERT INTO profiles (user_id, intro)
-    VALUES (?, ?)
-    ON CONFLICT(user_id)
-    DO UPDATE SET intro = excluded.intro
+        INSERT INTO profiles (user_id, intro)
+        VALUES (%s, %s)
+        ON CONFLICT (user_id)
+        DO UPDATE SET intro = EXCLUDED.intro
     """, (user_id, intro))
-
     conn.commit()
+    cur.close()
     conn.close()
 
 def load_profile(user_id: str):
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-
+    conn = get_db_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(
-        "SELECT intro FROM profiles WHERE user_id = ?",
+        "SELECT intro FROM profiles WHERE user_id = %s",
         (user_id,)
     )
     row = cur.fetchone()
+    cur.close()
     conn.close()
-
-    return row[0] if row else None
+    return row["intro"] if row else None
 
 # ====== ログ設定 ======
 logging.basicConfig(
@@ -143,7 +146,6 @@ class ManiaBot(commands.Bot):
     async def on_ready(self):
         log.info(f"Logged in as {self.user} (ID: {self.user.id})")
         log.info("Slash commands `/mania` and `/free` ready.")
-
 
 bot = ManiaBot()
 
