@@ -76,7 +76,7 @@ def load_profile(user_id: str):
     return data.get("intro")
 
 # ====== minecraft ======
-mc_ip = "webm-mc.chasyumen.net"
+mc_url = "https://api.mcsrvstat.us/3/webm-mc.chasyumen.net"
 
 # ====== ログ設定 ======
 logging.basicConfig(
@@ -250,16 +250,20 @@ async def self_intro(interaction: discord.Interaction, text: str = None):
 
 @bot.tree.command(name="エビチャーシューのマイクラ鯖ステータス", description="エビチャーシューのマイクラ鯖に入っている人を表示出来ます")
 async def mcserver(interaction: discord.Interaction):
-    res = requests.get(mc_ip)
-    data = res.json()
-    if data.online:
-        text = f"""
-            サバ名: {data.motd.clean}
-            人数: {data.players.online}
-            バージョン: {data.version}
-        """
-    else:
-        text = "鯖は現在オフラインです。"
+    try:
+        res = requests.get(mc_ip)
+        res.raise_for_status()
+        data = res.json()
+        if data.online:
+            text = f"""
+                # サバ名: {data.motd.clean}
+                ## 人数: {data.players.online}
+                ### バージョン: {data.version}
+            """
+        else:
+            text = "鯖は現在オフラインです。"
+    except Exception:
+        text = "情報が習得出来ませんでした。"
 
     await interaction.response.send_message(text)
 
