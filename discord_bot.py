@@ -254,11 +254,11 @@ async def mcserver(interaction: discord.Interaction):
         res = requests.get(mc_url)
         res.raise_for_status()
         data = res.json()
-        if data.online:
+        if data.get("online"):
             text = f"""
-                # サバ名: {data.motd.clean}
-                ## 人数: {data.players.online}
-                ### バージョン: {data.version}
+                # サバ名: {data.get("motd").get("clean")}
+                ## 人数: {data.get("players").get("online")}
+                ### バージョン: {data.get("version")}
             """
         else:
             text = "鯖は現在オフラインです。"
