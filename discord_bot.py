@@ -251,11 +251,11 @@ async def self_intro(interaction: discord.Interaction, text: str = None):
 @bot.tree.command(name="エビチャーシューのマイクラ鯖ステータス", description="エビチャーシューのマイクラ鯖に入っている人を表示出来ます")
 async def mcserver(interaction: discord.Interaction):
     res = requests.get(mc_ip)
-    if res.raise_for_status):
-        data = res.json()
+    data = res.json()
+    if data.online:
         text = f"""
             サバ名: {data.motd.clean}
-            人数: {data.online}
+            人数: {data.players.online}
             バージョン: {data.version}
         """
     else:
