@@ -10,6 +10,8 @@ import logging
 import discord
 from discord.ext import commands
 from discord import app_commands
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 # ====== 設定 ======
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
@@ -42,54 +44,35 @@ NUMERIC_PARAMS = {
     "stop": list,
 }
 
-# ====== MariaDB 設定 ======
-import psycopg2
-from psycopg2.extras import RealDictCursor
+# ====== firebase 設定 ======
+# Railwayの環境変数に JSON丸ごと入れておく
+cred_json = json.loads(os.environ["FIREBASE_CREDENTIALS"])
 
-SUPABASE_DB_CONFIG = {
-    "host": "db.rqipryukohyiurealjwg.supabase.co",
-    "database": "postgres",
-    "user": "postgres",
-    "password": "tFQN7&%Ev6?//Sp",
-    "port": 5432,
-}
+cred = credentials.Certificate(cred_json)
+firebase_admin.initialize_app(cred)
 
-# ====== supabase ======
-def get_db_conn():
-    return psycopg2.connect(
-        host=SUPABASE_DB_CONFIG["host"],
-        database=SUPABASE_DB_CONFIG["database"],
-        user=SUPABASE_DB_CONFIG["user"],
-        password=SUPABASE_DB_CONFIG["password"],
-        port=SUPABASE_DB_CONFIG["port"]
-    )
+db = firestore.client()
 
-print("DB初期化完了")
+print("🔥 Firebase 初期化完了")
 
 def save_profile(user_id: str, intro: str):
-    conn = get_db_conn()
-    cur = conn.cursor()
-    cur.execute("""
-        INSERT INTO profiles (user_id, intro)
-        VALUES (%s, %s)
-        ON CONFLICT (user_id)
-        DO UPDATE SET intro = EXCLUDED.intro
-    """, (user_id, intro))
-    conn.commit()
-    cur.close()
-    conn.close()
+    doc_ref = db.collection("profiles").document(user_id)
+    doc_ref.set(
+        {
+            "intro": intro,
+        },
+        merge=True
+    )
 
 def load_profile(user_id: str):
-    conn = get_db_conn()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute(
-        "SELECT intro FROM profiles WHERE user_id = %s",
-        (user_id,)
-    )
-    row = cur.fetchone()
-    cur.close()
-    conn.close()
-    return row["intro"] if row else None
+    doc_ref = db.collection("profiles").document(user_id)
+    doc = doc_ref.get()
+
+    if not doc.exists:
+        return None
+
+    data = doc.to_dict()
+    return data.get("intro")
 
 # ====== ログ設定 ======
 logging.basicConfig(
