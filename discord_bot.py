@@ -251,7 +251,7 @@ async def self_intro(interaction: discord.Interaction, text: str = None):
 @bot.tree.command(name="エビチャーシューのマイクラ鯖ステータス", description="エビチャーシューのマイクラ鯖に入っている人を表示出来ます")
 async def mcserver(interaction: discord.Interaction):
     try:
-        res = requests.get(mc_ip)
+        res = requests.get(mc_url)
         res.raise_for_status()
         data = res.json()
         if data.online:
@@ -262,7 +262,8 @@ async def mcserver(interaction: discord.Interaction):
             """
         else:
             text = "鯖は現在オフラインです。"
-    except Exception:
+    except Exception as e:
+        print(e)
         text = "情報が習得出来ませんでした。"
 
     await interaction.response.send_message(text)
