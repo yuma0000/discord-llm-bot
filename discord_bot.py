@@ -12,7 +12,7 @@ from discord.ext import commands
 from discord import app_commands
 
 # ====== 設定 ======
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
 MAX_NEW_TOKENS = 100
 STREAM_DELAY = 0.3
 MAX_DISCORD_LENGTH = 1800
@@ -253,7 +253,7 @@ async def self_intro(interaction: discord.Interaction, text: str = None):
 
     if text and text.strip():
         save_profile(user_id, text.strip())
-        await interaction.response.send_message("✅ 自己紹介を保存しました")
+        await interaction.response.send_message("自己紹介を保存したよ")
         return
 
     else:
@@ -261,7 +261,7 @@ async def self_intro(interaction: discord.Interaction, text: str = None):
         if intro:
             await interaction.response.send_message(intro)
         else:
-            await interaction.response.send_message("⚠️ 自己紹介はまだ登録されていません")
+            await interaction.response.send_message("まだ自己紹介は保存されてないよ")
 
 @bot.tree.command(name="name", description="AIくん？の名前を変える")
 @app_commands.describe(name="名前を入れるのだ！")
@@ -304,7 +304,7 @@ async def on_ready():
 if __name__ == "__main__":
     try:
         log.info("Starting Discord bot...")
-        bot.run(DISCORD_TOKEN)
+        await bot.start(DISCORD_TOKEN)
     except KeyboardInterrupt:
         log.info("Bot manually stopped.")
     except Exception:
