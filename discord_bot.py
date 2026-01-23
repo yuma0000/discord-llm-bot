@@ -52,7 +52,6 @@ SUPABASE_DB_CONFIG = {
     "user": "postgres",
     "password": "tFQN7&%Ev6?//Sp",
     "port": 5432,
-    "sslmode": "require",
 }
 
 # ====== supabase ======
@@ -62,8 +61,7 @@ def get_db_conn():
         database=SUPABASE_DB_CONFIG["database"],
         user=SUPABASE_DB_CONFIG["user"],
         password=SUPABASE_DB_CONFIG["password"],
-        port=SUPABASE_DB_CONFIG["port"],
-        sslmode=SUPABASE_DB_CONFIG["sslmode"],
+        port=SUPABASE_DB_CONFIG["port"]
     )
 
 print("DB初期化完了")
