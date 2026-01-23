@@ -248,7 +248,7 @@ async def self_intro(interaction: discord.Interaction, text: str = None):
         else:
             await interaction.response.send_message("まだ自己紹介は保存されてないよ")
 
-@bot.tree.command(name="エビチャーシューのマイクラ鯖ステータス", description="エビチャーシューのマイクラ鯖に入っている人を表示出来ます")
+@bot.tree.command(name="マニア鯖のステータス", description="エビ🦐ちゃーしゅ運営のマイクラ鯖のステータスと表示出来ます")
 async def mcserver(interaction: discord.Interaction):
     try:
         res = requests.get(mc_url)
