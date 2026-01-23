@@ -7,6 +7,7 @@ import re
 import json
 import asyncio
 import logging
+import requests
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -73,6 +74,9 @@ def load_profile(user_id: str):
 
     data = doc.to_dict()
     return data.get("intro")
+
+# ====== minecraft ======
+mc_ip = "webm-mc.chasyumen.net"
 
 # ====== ログ設定 ======
 logging.basicConfig(
@@ -159,8 +163,8 @@ async def mania_slash(interaction: discord.Interaction, prompt: str, reply_to: s
     await discord_generate(interaction, prompt, reply_to, True)
 
 # ====== /free ======
-#@bot.tree.command(name="free", description="自由に質問できます。")
-#@app_commands.describe(prompt="質問内容を入力してください。")
+@bot.tree.command(name="free", description="自由に質問できます。")
+@app_commands.describe(prompt="質問内容を入力してください。")
 async def free_slash(interaction: discord.Interaction, prompt: str):
     await discord_generate(interaction, prompt, None, False)
 
@@ -243,6 +247,21 @@ async def self_intro(interaction: discord.Interaction, text: str = None):
             await interaction.response.send_message(intro)
         else:
             await interaction.response.send_message("まだ自己紹介は保存されてないよ")
+
+@bot.tree.command(name="エビチャーシューのマイクラ鯖ステータス", description="エビチャーシューのマイクラ鯖に入っている人を表示出来ます")
+async def mcserver(interaction: discord.Interaction):
+    res = requests.get(mc_ip)
+    if res.raise_for_status):
+        data = res.json()
+        text = f"""
+            サバ名: {data.motd.clean}
+            人数: {data.online}
+            バージョン: {data.version}
+        """
+    else:
+        text = "鯖は現在オフラインです。"
+
+    await interaction.response.send_message(text)
 
 @bot.tree.command(name="name", description="AIくん？の名前を変える")
 @app_commands.describe(name="名前を入れるのだ！")
