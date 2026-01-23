@@ -304,7 +304,7 @@ async def on_ready():
 if __name__ == "__main__":
     try:
         log.info("Starting Discord bot...")
-        await bot.start(DISCORD_TOKEN)
+        bot.start(DISCORD_TOKEN)
     except KeyboardInterrupt:
         log.info("Bot manually stopped.")
     except Exception:
