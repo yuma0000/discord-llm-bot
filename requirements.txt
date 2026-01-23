@@ -1,7 +1,3 @@
-discord.py>=2.2.3,<2.4.0
-requests
-fastapi
-uvicorn[standard]
-torch
-transformers
-accelerate
+discord.py
+psycopg2-binary
+llama-cpp-python
