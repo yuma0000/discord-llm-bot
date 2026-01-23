@@ -1,6 +1,8 @@
+!pip install discord llama_cpp_python-0.3.16-cp312-cp312-linux_x86_64.whl
 # ==========================================================
 #  Discord Bot (GGUF / llama.cpp 高速版)
 # ==========================================================
+
 import os
 import re
 import json
@@ -9,11 +11,85 @@ import logging
 import discord
 from discord.ext import commands
 from discord import app_commands
-import subprocess
-import sys
-    
+
 # ====== 設定 ======
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+MAX_NEW_TOKENS = 100
+STREAM_DELAY = 0.3
+MAX_DISCORD_LENGTH = 1800
+
+# ====== 生成パラメータ設定 ======
+GEN_CONFIG = {
+    "max_tokens": 256,
+    "temperature": 1.0,
+    "top_p": 0.70,
+    "top_k": 40,
+    "repeat_penalty": 1.05,
+    "stop": ["</s>"],
+}
+
+RUNTIME_CONFIG = {
+    "n_threads": 8,
+    "n_gpu_layers": 0,
+    "n_ctx": 4096
+}
+
+NUMERIC_PARAMS = {
+    "max_tokens": int,
+    "temperature": float,
+    "top_p": float,
+    "top_k": int,
+    "repeat_penalty": float,
+    "stop": list,
+}
+
+# ====== MariaDB 設定 ======
+DB_PATH = "discord_bot.db"
+
+# ====== MariaDB ======
+import sqlite3
+
+conn = sqlite3.connect(DB_PATH)
+cur = conn.cursor()
+
+cur.execute("""
+CREATE TABLE IF NOT EXISTS profiles (
+    user_id TEXT PRIMARY KEY,
+    intro TEXT NOT NULL
+)
+""")
+
+conn.commit()
+conn.close()
+
+print("DB初期化完了")
+
+def save_profile(user_id: str, intro: str):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+
+    cur.execute("""
+    INSERT INTO profiles (user_id, intro)
+    VALUES (?, ?)
+    ON CONFLICT(user_id)
+    DO UPDATE SET intro = excluded.intro
+    """, (user_id, intro))
+
+    conn.commit()
+    conn.close()
+
+def load_profile(user_id: str):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT intro FROM profiles WHERE user_id = ?",
+        (user_id,)
+    )
+    row = cur.fetchone()
+    conn.close()
+
+    return row[0] if row else None
 
 # ====== ログ設定 ======
 logging.basicConfig(
@@ -38,11 +114,15 @@ def load_search_results(file_path):
                 continue
     return search_list
 
-SEARCH_RESULTS = load_search_results("dataset.jsonl")
+#SEARCH_RESULTS = load_search_results("dataset.jsonl")
+SEARCH_RESULTS = ""
 
 # ====== ストリーミング生成 ======
 async def generate_stream(prompt: str, match_cat):
-    return "只今停止中です。"
+    text = "## 現在利用不可です。"
+
+    yield text
+    await asyncio.sleep(STREAM_DELAY)
 
 # ====== Discord Bot ======
 class ManiaBot(commands.Bot):
@@ -63,6 +143,7 @@ class ManiaBot(commands.Bot):
     async def on_ready(self):
         log.info(f"Logged in as {self.user} (ID: {self.user.id})")
         log.info("Slash commands `/mania` and `/free` ready.")
+
 
 bot = ManiaBot()
 
@@ -87,25 +168,23 @@ async def discord_generate(interaction: discord.Interaction, prompt: str, reply_
             await msg.edit(content=collected + "\n⚠️返信対象メッセージが見つかりませんでした。")
     else:
         await msg.edit(content=collected)
- 
+
 # ====== /mania ======
 @bot.tree.command(name="mania", description="ウェブマニアとして回答します。")
 @app_commands.describe(prompt="質問内容を入力してください。", reply_to="返信したいメッセージID")
 async def mania_slash(interaction: discord.Interaction, prompt: str, reply_to: str = None):
-    text = f"""system:これはスタンプです「:arigato: :boost: :ganbare: :gohan: :idai: :igyou: :iine: :imakita: :kaibun: :kami: :kaso: :kusa: :kyawa: :love: :maji: :mania: :nazo: :oj: :otukare: :owata: :oyasumi: :paooon: :saikou: :sorena: :tadaima: :tasikani: :tensai: :tya: :wakame: :wakaru: :wakayama: :wara: :webpaon: :yasume:」以下の文脈の内容を理解して適切に答えて下さい。
-user:{prompt}
-ウェブマニア:"""
-    await discord_generate(interaction, text, reply_to, True)
+
+    await discord_generate(interaction, prompt, reply_to, True)
 
 # ====== /free ======
-@bot.tree.command(name="free", description="自由に質問できます。")
-@app_commands.describe(prompt="質問内容を入力してください。")
+#@bot.tree.command(name="free", description="自由に質問できます。")
+#@app_commands.describe(prompt="質問内容を入力してください。")
 async def free_slash(interaction: discord.Interaction, prompt: str):
     await discord_generate(interaction, prompt, None, False)
 
 # ====== /search コマンド ======
-@bot.tree.command(name="search", description="キーワードに基づいて検索結果を返します。")
-@app_commands.describe(keyword="検索したいキーワードを入力してください。")
+#@bot.tree.command(name="search", description="キーワードに基づいて検索結果を返します。")
+#@app_commands.describe(keyword="検索したいキーワードを入力してください。")
 async def search_slash(interaction: discord.Interaction, keyword: str):
     await interaction.response.send_message("検索中… ⏳")
     msg = await interaction.original_response()
@@ -166,6 +245,23 @@ async def settings_slash(interaction: discord.Interaction, param: str, value: st
     GEN_CONFIG[param] = v
     await interaction.response.send_message(f"🔧 `{param}` を `{v}` に変更しました。")
 
+@bot.tree.command(name="自己紹介", description="自己紹介を保存または表示をします")
+@app_commands.describe(text="自己紹介を入力してね、何も無ければ表示をします。")
+async def self_intro(interaction: discord.Interaction, text: str = None):
+    user_id = str(interaction.user.id)
+
+    if text and text.strip():
+        save_profile(user_id, text.strip())
+        await interaction.response.send_message("✅ 自己紹介を保存しました")
+        return
+
+    else:
+        intro = load_profile(user_id)
+        if intro:
+            await interaction.response.send_message(intro)
+        else:
+            await interaction.response.send_message("⚠️ 自己紹介はまだ登録されていません")
+
 @bot.tree.command(name="name", description="AIくん？の名前を変える")
 @app_commands.describe(name="名前を入れるのだ！")
 async def setname(interaction: discord.Interaction, name: str):
@@ -177,22 +273,20 @@ async def setname(interaction: discord.Interaction, name: str):
 
     await interaction.response.send_message("⚠️ 無効なパラメータです。")
 
-@bot.tree.command(name="プロフィール", description="自身のプロフィールを設定できるよ！")
-@app_commands.describe(text="入力してね")
-async def setprofile(interaction: discord.Interaction, profile: str):
-    try:
-        await interaction.response.send_message(f"設定しました。", ephemeral=True)
-    except Exception as e:
-        await interaction.response.send_message(f"エラーが起きました。")
-
 #======= アプリコマンド =======
 @bot.tree.context_menu(name="mania")
 async def mania_app(interaction: discord.Interaction, prompt: discord.Message):
-    await discord_generate(interaction, f"ユーザー:{prompt}\nウェブマニア:", None, True)
+    messages = [
+        {"role": "system", "content": "あなたはウェブマニアです。以下の内容に適切に返答を返して下さい！"},
+        {"role": "user", "content": prompt.content}
+    ]
+    text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+
+    await discord_generate(interaction, text, None, True)
 
 @bot.tree.context_menu(name="free")
-async def mania_app(interaction: discord.Interaction, prompt: discord.Message):
-    await discord_generate(interaction, prompt, None, False)
+async def free_app(interaction: discord.Interaction, prompt: discord.Message):
+    await discord_generate(interaction, str(prompt.content), None, False)
 
 # ====== !mania プレフィックス ======
 @bot.command(name="mania")
@@ -201,11 +295,15 @@ async def mania_prefix(ctx, *, prompt: str):
     async for chunk in generate_stream(prompt, False):
         await ctx.send(chunk)
 
+@bot.event
+async def on_ready():
+    print("Bot logged in as", bot.user)
+
 # ====== bot 実行 ======
 if __name__ == "__main__":
     try:
         log.info("Starting Discord bot...")
-        bot.run(DISCORD_TOKEN)
+        await bot.start(DISCORD_TOKEN)
     except KeyboardInterrupt:
         log.info("Bot manually stopped.")
     except Exception:
