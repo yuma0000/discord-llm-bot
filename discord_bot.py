@@ -12,7 +12,7 @@ from discord.ext import commands
 from discord import app_commands
 
 # ====== 設定 ======
-DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 MAX_NEW_TOKENS = 100
 STREAM_DELAY = 0.3
 MAX_DISCORD_LENGTH = 1800
