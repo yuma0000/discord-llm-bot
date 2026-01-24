@@ -348,7 +348,7 @@ async def free_app(interaction: discord.Interaction, prompt: discord.Message):
 async def miq(interaction: discord.Interaction, text: discord.Message):
     try:
         lines = wrap_by_lines(text.content, MAX_LINES)
-        font_size = mln(
+        font_size = min(
             BASE_FONT_SIZE,
             int(AVAILABLE_HEIGHT / (len(lines) * LINE_HEIGHT_RATE))
         )
