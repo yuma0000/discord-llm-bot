@@ -9,8 +9,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
     git \
-    && rm -rf /var/lib/apt/lists/* \
-    libcairo2
+    && rm -rf /var/lib/apt/lists/*
 
 # ===== Python依存関係 =====
 COPY requirements.txt .
