@@ -347,7 +347,7 @@ async def free_app(interaction: discord.Interaction, prompt: discord.Message):
 @bot.tree.context_menu(name="Make_is_a_quate")
 async def miq(interaction: discord.Interaction, text: discord.Message):
     try:
-        lines = wrap_by_lines(text, MAX_LINES)
+        lines = wrap_by_lines(text.content, MAX_LINES)
         font_size = mln(
             BASE_FONT_SIZE,
             int(AVAILABLE_HEIGHT / (len(lines) * LINE_HEIGHT_RATE))
@@ -390,7 +390,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         '''
 
         Path("quote.svg").write_text(svg, encoding="utf-8")
-        await interaction.response.send(file=discord.file("quote.svg"))
+        await interaction.followup.send(file=discord.file("quote.svg"))
 
     except Exception as e:
         print(e)
