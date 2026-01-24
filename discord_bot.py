@@ -15,6 +15,8 @@ import colorsys
 from pathlib import Path
 import textwrap
 import math
+import cairosvg
+from io import BytesIO
 
 from discord.ext import commands
 from discord import app_commands
