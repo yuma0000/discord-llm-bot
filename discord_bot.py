@@ -84,7 +84,7 @@ def load_profile(user_id: str):
     return data.get("intro")
 
 # ====== minecraft ======
-mc_api = "https://api.mcsrvstat.us/3/webm-mc.chasyumen.net"
+mc_api = "https://api.mcsrvstat.us/3/mc.webmfan.net"
 
 # ====== 0.0035 ======
 game_api = "https://store.steampowered.com/api/appdetails?appids=4234500&cc=jp&l=ja"
@@ -386,7 +386,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
             <text x="{W-16}" y="{H-16}"
                 text-anchor="end"
                 font-size="14"
-                fill="#333"
+                fill="#777"
                 font-family="sans-serif">
                 {signature}
             </text>
