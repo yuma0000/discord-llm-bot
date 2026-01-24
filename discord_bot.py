@@ -15,10 +15,8 @@ import colorsys
 from pathlib import Path
 import textwrap
 import math
-import io
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderPM
-from PIL import Image
+import subprocess
+from IPython.display import Image, display
 
 from discord.ext import commands
 from discord import app_commands
@@ -392,10 +390,17 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
 
         </svg>
         '''
-
-        drawing = svg2rlg(io.StringIO(svg))
-        png_bytes = renderPM.drawToString(drawing, fmt="PNG")
         
+        with open(h, "W", encoding="utf-8") as f:
+            f.write(svg + ".svg")
+
+        subprocess.run(
+            ["inkscape", h + ".svg", "--export-type=png", "--export-filename=" + h + ".png"],
+            check=True
+        )
+
+        display(Image(h + ".png"))
+
         await interaction.response.defer()
         await interaction.followup.send(file=discord.File(fp=io.ByteIO(png_bytes), filename="quote.svg"))
 
