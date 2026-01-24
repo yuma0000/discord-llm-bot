@@ -394,7 +394,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         </svg>
         '''
         
-        with open(str(h) + ".svg", "W", encoding="utf-8") as f:
+        with open(str(h) + ".svg", "w", encoding="utf-8") as f:
             f.write(svg)
 
         subprocess.run(
@@ -403,7 +403,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         )
 
         await interaction.response.defer()
-        await interaction.followup.send(file=discord.File(fp=io.ByteIO(png_bytes), filename=str(h) + ".png"))
+        await interaction.followup.send(file=discord.File(str(h) + ".png"))
 
         remove_file(str(h) + ".svg")
         remove_file(str(h) + ".png")
