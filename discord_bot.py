@@ -389,9 +389,12 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         </svg>
         '''
 
-        Path("quote.svg").write_text(svg, encoding="utf-8")
+        png_bytes = ByteIO()
+        cairosvg.svg2png(bytestring=svg.encode("utf-8"), write_to=png_bytes)
+        png_bytes.seek(0)
+
         await interaction.response.defer()
-        await interaction.followup.send(file=discord.File("quote.svg"))
+        await interaction.followup.send(file=discord.File(png_bytes, filename="quote.svg"))
 
     except Exception as e:
         log.exception(e)
