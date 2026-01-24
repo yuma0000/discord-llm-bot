@@ -16,7 +16,6 @@ from pathlib import Path
 import textwrap
 import math
 import subprocess
-from IPython.display import Image, display
 
 from discord.ext import commands
 from discord import app_commands
@@ -399,10 +398,8 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
             check=True
         )
 
-        display(Image(h + ".png"))
-
         await interaction.response.defer()
-        await interaction.followup.send(file=discord.File(fp=io.ByteIO(png_bytes), filename="quote.svg"))
+        await interaction.followup.send(file=discord.File(fp=io.ByteIO(png_bytes), filename=h + ".svg"))
 
     except Exception as e:
         log.exception(e)
