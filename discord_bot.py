@@ -271,7 +271,7 @@ async def mcserver(interaction: discord.Interaction):
 
     await interaction.response.send_message(text)
 
-@bot.tree.command(name="0.0035%", description="MANIA PRODUCTIONの0.0035%のsteamを表示します")
+@bot.tree.command(name="マニアプロダクション", description="MANIA PRODUCTIONの0.0035%のsteamを表示します")
 async def maniaproduction(interaction: discord.Interaction):
     try:
         res = requests.get(game_api)
