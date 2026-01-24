@@ -357,7 +357,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         bg_color = f"rgb({int(r*255)}, {int(g*255)}, {int(b*255)})"
         tspans = []
         start_dy = -(len(lines) - 1) / 2 * font_size * LINE_HEIGHT_RATE
-        for i, line in enumerate(line):
+        for i, line in enumerate(lines):
             dy = start_dy if i == 0 else font_size * LINE_HEIGHT_RATE
             tspans.append(
                 f'<tspan x="50%" dy="{dy}">{line}</tspan>'
