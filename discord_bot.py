@@ -15,8 +15,10 @@ import colorsys
 from pathlib import Path
 import textwrap
 import math
-import cairosvg
-from io import BytesIO
+import io
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPM
+from PIL import Image
 
 from discord.ext import commands
 from discord import app_commands
@@ -391,12 +393,11 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         </svg>
         '''
 
-        png_bytes = ByteIO()
-        cairosvg.svg2png(bytestring=svg.encode("utf-8"), write_to=png_bytes)
-        png_bytes.seek(0)
-
+        drawing = svg2rlg(io.StringIO(svg))
+        png_bytes = renderPM.drawToString(drawing, fmt="PNG")
+        
         await interaction.response.defer()
-        await interaction.followup.send(file=discord.File(png_bytes, filename="quote.svg"))
+        await interaction.followup.send(file=discord.File(fp=io.ByteIO(png_bytes), filename="quote.svg"))
 
     except Exception as e:
         log.exception(e)
