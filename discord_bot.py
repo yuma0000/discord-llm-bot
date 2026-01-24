@@ -9,6 +9,13 @@ import asyncio
 import logging
 import requests
 import discord
+
+import random
+import colorsys
+from pathlib import Path
+import textwrap
+import math
+
 from discord.ext import commands
 from discord import app_commands
 import firebase_admin
@@ -106,6 +113,26 @@ def load_search_results(file_path):
 
 #SEARCH_RESULTS = load_search_results("dataset.jsonl")
 SEARCH_RESULTS = ""
+
+# ====== miq 生成 ======
+signature = "まにまにあ"
+W, H = 800, 500
+TOP_MARGIN = 80
+BOTTOM_MARGIN = 80
+AVAILABLE_HEIGHT = H - TOP_MARGIN - BOTTOM_MARGIN
+BASE_FONT_SIZE = 24
+LINE_HEIGHT_RATE = 1.4
+MAX_LINES = math.floor(AVAILABLE_HEIGHT / (BASE_FONT_SIZE * LINE_HEIGHT_RATE))
+
+s = 0.50
+v = 0.80
+
+def wrap_by_lines(text, max_lines):
+    for chars in range(30, 6, -1):
+        lines = textwrap.wrap(text, chars)
+        if len(lines) <= max_lines:
+            return lines
+    return textwrap.wrap(text, 6)
 
 # ====== ストリーミング生成 ======
 async def generate_stream(prompt: str, match_cat):
@@ -316,6 +343,59 @@ async def mania_app(interaction: discord.Interaction, prompt: discord.Message):
 @bot.tree.context_menu(name="free")
 async def free_app(interaction: discord.Interaction, prompt: discord.Message):
     await discord_generate(interaction, str(prompt.content), None, False)
+
+@bot.tree.context_menu(name="Make is a quate", description="MiQを作成します")
+async def miq(interaction: discord.Interaction, text: discord.Message):
+    try:
+        lines = wrap_by_lines(text, MAX_LINES)
+        font_size = mln(
+            BASE_FONT_SIZE,
+            int(AVAILABLE_HEIGHT / (len(lines) * LINE_HEIGHT_RATE))
+        )
+        h = random.random()
+        r, g, b = colorsys.hsv_to_rgb(h, s, v)
+        bg_color = f"rgb({int(r*255)}, {int(g*255)}, {int(b*255)})"
+        tspans = []
+        start_dy = -(len(lines) - 1) / 2 * font_size * LINE_HEIGHT_RATE
+        for i, line in enumerate(line):
+            dy = start_dy if i == 0 else font_size * LINE_HEIGHT_RATE
+            tspans.append(
+                f'<tspan x="50%" dy="{dy}">{line}</tspan>'
+            )
+        tspan_text = "\n".join(tspans)
+
+        svg = f'''<?xml version="1.0" encoding="UTF-8"?>
+            <svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">
+
+            <rect width="100%" height="100%" fill="{bg_color}"/>
+
+            <text x="50%" y="50%"
+                text-anchor="middle"
+                dominant-baseline="middle"
+                font-size="{font_size}"
+                font-family="sans-serif"
+                fill="#121212">
+                {tspan_text}
+            </text>
+
+            <text x="{W-16}" y="{H-16}"
+                text-anchor="end"
+                font-size="14"
+                fill="#333"
+                font-family="sans-serif">
+                {signature}
+            </text>
+
+        </svg>
+        '''
+
+        Path("quote.svg").write_text(svg, encoding="utf-8")
+        await interaction.response.send(file=discord.file("quote.svg"))
+
+    except Exception as e:
+        print(e)
+        text = "MiQが作成出来ませんでした。"
+        await interaction.response.send_message(text)
 
 # ====== !mania プレフィックス ======
 @bot.command(name="mania")
