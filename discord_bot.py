@@ -344,7 +344,7 @@ async def mania_app(interaction: discord.Interaction, prompt: discord.Message):
 async def free_app(interaction: discord.Interaction, prompt: discord.Message):
     await discord_generate(interaction, str(prompt.content), None, False)
 
-@bot.tree.context_menu(name="Make is a quate", description="MiQを作成します")
+@bot.tree.context_menu(name="Make_is_a_quate", description="MiQを作成します")
 async def miq(interaction: discord.Interaction, text: discord.Message):
     try:
         lines = wrap_by_lines(text, MAX_LINES)
