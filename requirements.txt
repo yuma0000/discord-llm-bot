@@ -2,3 +2,4 @@ discord.py
 psycopg2-binary
 llama-cpp-python
 firebase_admin
+cairosvg
