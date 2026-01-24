@@ -76,7 +76,10 @@ def load_profile(user_id: str):
     return data.get("intro")
 
 # ====== minecraft ======
-mc_url = "https://api.mcsrvstat.us/3/webm-mc.chasyumen.net"
+mc_api = "https://api.mcsrvstat.us/3/webm-mc.chasyumen.net"
+
+# ====== 0.0035 ======
+game_api = "https://store.steampowered.com/api/appdetails?appids=4234500&cc=jp&l=ja"
 
 # ====== ログ設定 ======
 logging.basicConfig(
@@ -251,7 +254,7 @@ async def self_intro(interaction: discord.Interaction, text: str = None):
 @bot.tree.command(name="マニア鯖のステータス", description="エビ🦐ちゃーしゅ運営のマイクラ鯖のステータスと表示出来ます")
 async def mcserver(interaction: discord.Interaction):
     try:
-        res = requests.get(mc_url)
+        res = requests.get(mc_api)
         res.raise_for_status()
         data = res.json()
         if data.get("online"):
@@ -262,6 +265,26 @@ async def mcserver(interaction: discord.Interaction):
             """
         else:
             text = "鯖は現在オフラインです。"
+    except Exception as e:
+        print(e)
+        text = "情報が習得出来ませんでした。"
+
+    await interaction.response.send_message(text)
+
+@bot.tree.command(name="0.0035%", description="MANIA PRODUCTIONの0.0035%のsteamを表示します")
+async def maniaproduction(interaction: discord.Interaction):
+    try:
+        res = requests.get(game_api)
+        res.raise_for_status()
+        data = res.json()
+        if data.get("4234500").get("success"):
+            text = f"""
+                # ゲーム名: {data.get("4234500").get("data").get("name")}
+                ## デベロッパー: {data.get("4234500").get("data").get("developers")[0]}
+                ### リリース日: {data.get("4234500").get("data").get("release_date").get("date")}
+            """
+        else:
+            text = "ゲームが見つかりませんでした。"
     except Exception as e:
         print(e)
         text = "情報が習得出来ませんでした。"
