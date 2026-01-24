@@ -391,8 +391,8 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         </svg>
         '''
         
-        with open(h, "W", encoding="utf-8") as f:
-            f.write(svg + ".svg")
+        with open(h + ".svg", "W", encoding="utf-8") as f:
+            f.write(svg)
 
         subprocess.run(
             ["inkscape", h + ".svg", "--export-type=png", "--export-filename=" + h + ".png"],
