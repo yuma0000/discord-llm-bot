@@ -135,6 +135,10 @@ def wrap_by_lines(text, max_lines):
             return lines
     return textwrap.wrap(text, 6)
 
+def remove_file(file: str):
+    if os.path.exists(file):
+        os.remove(file)
+        
 # ====== ストリーミング生成 ======
 async def generate_stream(prompt: str, match_cat):
     text = "## 現在利用不可です。"
@@ -390,17 +394,20 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         </svg>
         '''
         
-        with open(h + ".svg", "W", encoding="utf-8") as f:
+        with open(str(h) + ".svg", "W", encoding="utf-8") as f:
             f.write(svg)
 
         subprocess.run(
-            ["inkscape", h + ".svg", "--export-type=png", "--export-filename=" + h + ".png"],
+            ["inkscape", str(h) + ".svg", "--export-type=png", "--export-filename=" + str(h) + ".png"],
             check=True
         )
 
         await interaction.response.defer()
-        await interaction.followup.send(file=discord.File(fp=io.ByteIO(png_bytes), filename=h + ".svg"))
+        await interaction.followup.send(file=discord.File(fp=io.ByteIO(png_bytes), filename=str(h) + ".png"))
 
+        remove_file(str(h) + ".svg")
+        remove_file(str(h) + ".png")
+        
     except Exception as e:
         log.exception(e)
         text = "MiQが作成出来ませんでした。"
