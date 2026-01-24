@@ -8,6 +8,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
+    inkscape \
     && rm -rf /var/lib/apt/lists/*
 
 # ===== Python依存関係 =====
