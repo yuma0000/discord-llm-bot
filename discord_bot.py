@@ -390,12 +390,13 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         '''
 
         Path("quote.svg").write_text(svg, encoding="utf-8")
-        await interaction.followup.send(file=discord.file("quote.svg"))
+        await interaction.response.defer()
+        await interaction.followup.send(file=discord.File("quote.svg"))
 
     except Exception as e:
-        print(e)
+        log.exception(e)
         text = "MiQが作成出来ませんでした。"
-        await interaction.response.send_message(text)
+        await interaction.followup.send(content=text)
 
 # ====== !mania プレフィックス ======
 @bot.command(name="mania")
