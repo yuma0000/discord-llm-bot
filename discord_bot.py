@@ -319,8 +319,8 @@ async def maniaproduction(interaction: discord.Interaction):
         else:
             text = "ゲームが見つかりませんでした。"
     except Exception as e:
-        print(e)
-        text = "情報が習得出来ませんでした。"
+        log.exception(e)
+        text = "情報が取得出来ませんでした。"
 
     await interaction.response.send_message(text)
 
@@ -337,7 +337,7 @@ async def setname(interaction: discord.Interaction, name: str):
 
 #====== /nitro_present ======
 @bot.tree.command(name="nitro_present", description="ニトロをプレゼント致します。")
-@app_commands.describe(text="追加または削除をします")
+@app_commands.describe(url="追加または削除をします")
 async def nitro_present(interaction: discord.Interaction, url: str = None):
     try:
         doc_ref = db.collection("nitro_lists").document("links")
@@ -364,10 +364,12 @@ async def nitro_present(interaction: discord.Interaction, url: str = None):
                     url: True
                 }, merge=True)
                 text = "リンクを追加致しました。"
-        await interaction.response.send_message(text)
 
     except Exception as e:
         log.exception(e)
+        text = "エラーが発生いたしました。"
+
+    await interaction.response.send_message(text)
 
 #======= アプリコマンド =======
 @bot.tree.context_menu(name="mania")
