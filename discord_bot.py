@@ -379,12 +379,13 @@ async def setname(interaction: discord.Interaction, name: str):
 @bot.tree.command(name="nitro_present", description="ニトロをプレゼント致します。")
 @app_commands.describe(url="追加または削除をします")
 async def nitro_present(interaction: discord.Interaction, url: str = None):
-    await discord_collections(interaction, "nitro_present", "残念ながら現在nitroの配布は行っておりません。", "リンクを削除致しました。", "リンクを追加致しました。")
+    await discord_collections(interaction, url, "nitro_present", "残念ながら現在nitroの配布は行っておりません。", "リンクを削除致しました。", "リンクを追加致しました。")
 
-@bot.tree.command(name="ランダムメッセージ", description="ランダムに追加したメッセージを返します")
+#====== /random_message
+@bot.tree.command(name="random_message", description="ランダムに追加したメッセージを返します")
 @app_commands.describe(message="追加または削除をします")
 async def random_message(interaction: discord.Interaction, message: str = None):
-    await discord_collections(interaction, "random_message", "メッセージが一つも登録されてません。", "メッセージを追加しました。", "メッセージを削除致しました。")
+    await discord_collections(interaction, message, "random_message", "メッセージが一つも登録されてません。", "メッセージを追加しました。", "メッセージを削除致しました。")
 
 #======= アプリコマンド =======
 @bot.tree.context_menu(name="mania")
