@@ -340,17 +340,20 @@ async def setname(interaction: discord.Interaction, name: str):
 @app_commands.describe(text="追加または削除をします")
 async def nitro_present(interaction: discord.Interaction, url: str = None):
     try:
-        doc_ref = db.connection("nitro_lists").document("links")
+        doc_ref = db.collection("nitro_lists").document("links")
         doc = doc_ref.get()
-        
-        if not url:
-            if not doc.exists:
-                text = "残念ながら現在nitroの配布は行っておりません。"
-            else:
-                data = doc.to_dict()
-                text = random.choice(list(data.keys()))
+
+        if not doc.exists:
+            return None
         else:
             data = doc.to_dict()
+        
+        if not url:
+            if not data:
+                text = "残念ながら現在nitroの配布は行っておりません。"
+            else:
+                text = random.choice(list(data.keys()))
+        else:
             if url in data:
                 doc_ref.update({
                     url: firestore.DELETE_FIELD
@@ -362,6 +365,9 @@ async def nitro_present(interaction: discord.Interaction, url: str = None):
                 }, merge=True)
                 text = "リンクを追加致しました。"
         await interaction.response.send_message(text)
+
+    except Exception as e:
+        log.exception(e)
 
 #======= アプリコマンド =======
 @bot.tree.context_menu(name="mania")
