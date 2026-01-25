@@ -340,7 +340,7 @@ async def setname(interaction: discord.Interaction, name: str):
 @app_commands.describe(url="追加または削除をします")
 async def nitro_present(interaction: discord.Interaction, url: str = None):
     try:
-        doc_ref = db.collection("nitro_lists").document("links")
+        doc_ref = db.collection("nitro_present").document("links")
         doc = doc_ref.get()
 
         if not doc.exists:
