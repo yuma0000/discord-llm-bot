@@ -232,6 +232,7 @@ async def search_slash(interaction: discord.Interaction, keyword: str):
 
     await msg.edit(content=text)
 
+#====== /settings ======
 @bot.tree.command(name="settings", description="LLM の生成パラメータを変更します。")
 @app_commands.describe(param="パラメータ名", value="値")
 async def settings_slash(interaction: discord.Interaction, param: str, value: str = None):
@@ -333,6 +334,34 @@ async def setname(interaction: discord.Interaction, name: str):
         await interaction.response.send_message(f"変更エラー: {e}", ephemeral=True)
 
     await interaction.response.send_message("⚠️ 無効なパラメータです。")
+
+#====== /nitro_present ======
+@bot.tree.command(name="nitro_present", description="ニトロをプレゼント致します。")
+@app_commands.describe(text="追加または削除をします")
+async def nitro_present(interaction: discord.Interaction, url: str = None):
+    try:
+        doc_ref = db.connection("nitro_lists").document("links")
+        doc = doc_ref.get()
+        
+        if not url:
+            if not doc.exists:
+                text = "残念ながら現在nitroの配布は行っておりません。"
+            else:
+                data = doc.to_dict()
+                text = random.choice(list(data.keys()))
+        else:
+            data = doc.to_dict()
+            if url in data:
+                doc_ref.update({
+                    url: firestore.DELETE_FIELD
+                })
+                text = "リンクを削除致しました。"
+            else:
+                doc_ref.set({
+                    url: True
+                }, merge=True)
+                text = "リンクを追加致しました。"
+        await interaction.response.send_message(text)
 
 #======= アプリコマンド =======
 @bot.tree.context_menu(name="mania")
