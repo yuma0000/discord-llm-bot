@@ -191,11 +191,50 @@ async def discord_generate(interaction: discord.Interaction, prompt: str, reply_
     else:
         await msg.edit(content=collected)
 
+async def discord_collections(interaction: discord.Interaction, message: str, document: str, not_mess: str, add_mess: str, del_mess: str):
+    try:
+        doc_ref = db.collection("discord_collections").document(document)
+        doc = doc_ref.get()
+
+        if not doc.exists:
+            return None
+        else:
+            data = doc.to_dict()
+        
+        if not message:
+            if not data:
+                text = not_mess
+            else:
+                text = random.choice(list(data.values()))
+        else:
+            key = None
+            for k, v in data.items():
+                if v == message:
+                    key = k
+                    break
+            
+            if key:
+                doc_ref.update({
+                    key: firestore.DELETE_FIELD
+                })
+                text = add_mess
+            else:
+                key = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                doc_ref.set({
+                    key: message
+                }, merge=True)
+                text = del_mess
+
+    except Exception as e:
+        log.exception(e)
+        text = "エラーが発生いたしました。"
+
+    await interaction.response.send_message(text)
+
 # ====== /mania ======
 @bot.tree.command(name="mania", description="ウェブマニアとして回答します。")
 @app_commands.describe(prompt="質問内容を入力してください。", reply_to="返信したいメッセージID")
 async def mania_slash(interaction: discord.Interaction, prompt: str, reply_to: str = None):
-
     await discord_generate(interaction, prompt, reply_to, True)
 
 # ====== /free ======
@@ -340,44 +379,12 @@ async def setname(interaction: discord.Interaction, name: str):
 @bot.tree.command(name="nitro_present", description="ニトロをプレゼント致します。")
 @app_commands.describe(url="追加または削除をします")
 async def nitro_present(interaction: discord.Interaction, url: str = None):
-    try:
-        doc_ref = db.collection("nitro_present").document("links")
-        doc = doc_ref.get()
+    await discord_collections(interaction, "nitro_present", "残念ながら現在nitroの配布は行っておりません。", "リンクを削除致しました。", "リンクを追加致しました。")
 
-        if not doc.exists:
-            return None
-        else:
-            data = doc.to_dict()
-        
-        if not url:
-            if not data:
-                text = "残念ながら現在nitroの配布は行っておりません。"
-            else:
-                text = random.choice(list(data.values()))
-        else:
-            key = None
-            for k, v in data.items():
-                if v == url:
-                    key = k
-                    break
-            
-            if key:
-                doc_ref.update({
-                    key: firestore.DELETE_FIELD
-                })
-                text = "リンクを削除致しました。"
-            else:
-                key = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-                doc_ref.set({
-                    key: url
-                }, merge=True)
-                text = "リンクを追加致しました。"
-
-    except Exception as e:
-        log.exception(e)
-        text = "エラーが発生いたしました。"
-
-    await interaction.response.send_message(text)
+@bot.tree.command(name="ランダムメッセージ", description="ランダムに追加したメッセージを返します")
+@app_commands.describe(message="追加または削除をします")
+async def random_message(interaction: discord.Interaction, message: str = None):
+    await discord_collections(interaction, "random_message", "メッセージが一つも登録されてません。", "メッセージを追加しました。", "メッセージを削除致しました。")
 
 #======= アプリコマンド =======
 @bot.tree.context_menu(name="mania")
@@ -394,7 +401,7 @@ async def mania_app(interaction: discord.Interaction, prompt: discord.Message):
 async def free_app(interaction: discord.Interaction, prompt: discord.Message):
     await discord_generate(interaction, str(prompt.content), None, False)
 
-@bot.tree.context_menu(name="Make_is_a_quate")
+@bot.tree.context_menu(name="Make_is_a_Quate")
 async def miq(interaction: discord.Interaction, text: discord.Message):
     try:
         lines = wrap_by_lines(text.content, MAX_LINES)
