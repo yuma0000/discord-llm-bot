@@ -352,16 +352,23 @@ async def nitro_present(interaction: discord.Interaction, url: str = None):
             if not data:
                 text = "残念ながら現在nitroの配布は行っておりません。"
             else:
-                text = random.choice(list(data.keys()))
+                text = random.choice(list(data.values()))
         else:
-            if url in data:
+            key = None
+            for k, v in data.items():
+                if v == url:
+                    key = k
+                    break
+            
+            if key:
                 doc_ref.update({
-                    url: firestore.DELETE_FIELD
+                    key: firestore.DELETE_FIELD
                 })
                 text = "リンクを削除致しました。"
             else:
+                key = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
                 doc_ref.set({
-                    url: True
+                    key: url
                 }, merge=True)
                 text = "リンクを追加致しました。"
 
