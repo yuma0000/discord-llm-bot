@@ -217,13 +217,13 @@ async def discord_collections(interaction: discord.Interaction, message: str, do
                 doc_ref.update({
                     key: firestore.DELETE_FIELD
                 })
-                text = add_mess
+                text = del_mess
             else:
                 key = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
                 doc_ref.set({
                     key: message
                 }, merge=True)
-                text = del_mess
+                text = add_mess
 
     except Exception as e:
         log.exception(e)
@@ -379,7 +379,7 @@ async def setname(interaction: discord.Interaction, name: str):
 @bot.tree.command(name="nitro_present", description="ニトロをプレゼント致します。")
 @app_commands.describe(url="追加または削除をします")
 async def nitro_present(interaction: discord.Interaction, url: str = None):
-    await discord_collections(interaction, url, "nitro_present", "残念ながら現在nitroの配布は行っておりません。", "リンクを削除致しました。", "リンクを追加致しました。")
+    await discord_collections(interaction, url, "nitro_present", "残念ながら現在nitroの配布は行っておりません。", "リンクを追加致しました。", "リンクを削除致しました。")
 
 #====== /random_message
 @bot.tree.command(name="random_message", description="ランダムに追加したメッセージを返します")
