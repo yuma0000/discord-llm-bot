@@ -119,7 +119,7 @@ SEARCH_RESULTS = ""
 
 # ====== miq 生成 ======
 signature = "まにまにあ"
-W, H = 800, 500
+W, H = 500, 300
 CX, CY = W // 2, H // 2
 HEART = "♥️"
 TOP_MARGIN = 80
@@ -141,7 +141,7 @@ async def wrap_by_lines(text: str):
         if emoji_pattern.search(line):
             texts.append(line)
         else:
-            texts.extend(textwrap.wrap(line, 30))
+            texts.extend(textwrap.wrap(line, 10))
     return texts
 
 async def emoji_convert(text: str):
