@@ -195,7 +195,7 @@ async def build_text_groups(lines, font_size):
     y = CY - (len(lines) - 1) * font_size * LINE_HEIGHT_RATE / 2
 
     for line in lines:
-        tokens = emoji_convert(line)
+        tokens = await emoji_convert(line)
 
         width = 0
         for t in tokens:
