@@ -125,7 +125,7 @@ HEART = "♥️"
 TOP_MARGIN = 80
 BOTTOM_MARGIN = 80
 AVAILABLE_HEIGHT = H - TOP_MARGIN - BOTTOM_MARGIN
-BASE_FONT_SIZE = 48
+BASE_FONT_SIZE = 24
 LINE_HEIGHT_RATE = 1.4
 MAX_LINES = math.floor(AVAILABLE_HEIGHT / (BASE_FONT_SIZE * LINE_HEIGHT_RATE))
 
@@ -189,7 +189,7 @@ async def make_hearts():
         old_scale = scale
         ax, ay = dx * scale, dy * scale
 
-        size = 100
+        size = 48
         rotate = 0
         color = ["#ff4d6d", "#ff758f", "#ff8fab"][i % 3]
 
