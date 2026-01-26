@@ -548,7 +548,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
                 '''
             )
 
-        lines = wrap_by_lines(text.content)
+        lines = await wrap_by_lines(text.content)
         font_size = min(BASE_FONT_SIZE, int(260 / (len(lines) * LINE_HEIGHT_RATE)))
 
         svg = f'''<?xml version="1.0" encoding="UTF-8"?>
@@ -556,8 +556,8 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
             xmlns="http://www.w3.org/2000/svg">
 
             <rect width="100%" height="100%" fill="#fff0f3"/>
-            {make_hearts()}
-            {build_text_groups(lines, font_size)}
+            {await make_hearts()}
+            {await build_text_groups(lines, font_size)}
 
             <text x="{W-16}" y="{H-16}"
                 text-anchor="end"
