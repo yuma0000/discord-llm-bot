@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
     inkscape \
+    fonts-noto-cjk \
     && rm -rf /var/lib/apt/lists/*
 
 # ===== Python依存関係 =====
