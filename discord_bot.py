@@ -138,7 +138,7 @@ async def wrap_by_lines(text: str):
     texts = []
     lines = text.split("\n")
     for line in lines:
-        if pattern.search(line):
+        if emoji_pattern.search(line):
             texts.append(line)
         else:
             texts.extend(textwrap.wrap(line, 30))
