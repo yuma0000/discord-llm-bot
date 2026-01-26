@@ -462,7 +462,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
                 dominant-baseline="middle"
                 font-size="96"
                 font-weight="bold"
-                font-family="sans-serif"
+                font-family="Noto Sans JP"
                 fill="pink">
                 {text.content}
             </text>
@@ -471,7 +471,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
                 text-anchor="end"
                 font-size="14"
                 fill="#777"
-                font-family="sans-serif">
+                font-family="Noto Sans JP">
                 {signature}
             </text>
 
