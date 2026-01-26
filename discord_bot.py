@@ -464,7 +464,15 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
                 font-weight="bold"
                 font-family="sans-serif"
                 fill="pink">
-                {text}
+                {text.content}
+            </text>
+
+            <text x="{W-16}" y="{H-16}"
+                text-anchor="end"
+                font-size="14"
+                fill="#777"
+                font-family="sans-serif">
+                {signature}
             </text>
 
         </svg>
