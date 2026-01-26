@@ -450,14 +450,14 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
             )
 
         svg = f'''<?xml version="1.0" encoding="UTF-8"?>
-        <svg width="{W}" height="{H}" viewBox="0 0 {W} {H}"
-             xmlns="http://www.w3.org/2000/svg">
+            <svg width="{W}" height="{H}" viewBox="0 0 {W} {H}"
+            xmlns="http://www.w3.org/2000/svg">
 
-          <rect width="100%" height="100%" fill="#fff0f3"/>
+            <rect width="100%" height="100%" fill="#fff0f3"/>
 
-          {"".join(hearts)}
+            {"".join(hearts)}
 
-          <text x="50%" y="50%"
+            <text x="50%" y="50%"
                 text-anchor="middle"
                 dominant-baseline="middle"
                 font-size="96"
@@ -465,7 +465,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
                 font-family="sans-serif"
                 fill="pink">
                 {text}
-          </text>
+            </text>
 
         </svg>
         '''
@@ -513,7 +513,8 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         </svg>
         '''
         """
-        
+
+        h = random.random()
         with open(str(h) + ".svg", "w", encoding="utf-8") as f:
             f.write(svg)
 
