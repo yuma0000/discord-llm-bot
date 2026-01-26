@@ -5,6 +5,7 @@
 import os
 import re
 import json
+import base64
 import asyncio
 import logging
 import requests
@@ -131,14 +132,113 @@ MAX_LINES = math.floor(AVAILABLE_HEIGHT / (BASE_FONT_SIZE * LINE_HEIGHT_RATE))
 s = 0.50
 v = 0.80
 
-def wrap_by_lines(text, max_lines):
-    for chars in range(30, 6, -1):
-        lines = textwrap.wrap(text, chars)
-        if len(lines) <= max_lines:
-            return lines
-    return textwrap.wrap(text, 6)
+emoji_pattern = re.compile(r"<:\w+:\d+>")
 
-def remove_file(file: str):
+async def wrap_by_lines(text: str):
+    texts = []
+    lines = text.split("\n")
+    for line in lines:
+        if pattern.search(line):
+            texts.append(line)
+        else:
+            texts.extend(textwrap.wrap(line, 30))
+    return texts
+
+def emoji_convert(text: str):
+    result = []
+    last = 0
+
+    for m in emoji_pattern.finditer(text):
+        start, end = m.span()
+        emoji_id = m.group(1)
+        if start > last:
+            result.append(text[last:start])
+
+        result.append(emoji_id)
+        last = end
+        
+    if last < len(text):
+        result.append(text[last:])
+    return result
+
+def make_hearts():
+    hearts = []
+    step = 24
+    colors = ["#ff4d6d", "#ff758f", "#ff8fab"]
+
+    points = []
+    for i in range(0, W, step): points.append((i, 0))
+    for i in range(0, H, step): points.append((W, i))
+    for i in range(W, 0, -step): points.append((i, H))
+    for i in range(H, 0, -step): points.append((0, i))
+
+    for i, (x, y) in enumerate(points):
+        dx, dy = x - CX, y - CY
+        dist = math.hypot(dx, dy)
+        scale = min(1.0, dist / (W * 0.6))
+        ax, ay = CX + dx * scale, CY + dy * scale
+
+        hearts.append(f'''
+        <text x="{ax}" y="{ay}"
+              font-size="{32 * scale}"
+              text-anchor="middle"
+              dominant-baseline="middle"
+              fill="{colors[i % 3]}">
+          {HEART}
+        </text>
+        ''')
+
+    return "".join(hearts)
+
+    def build_text_groups(lines, font_size):
+    groups = []
+    y = CY - (len(lines) - 1) * font_size * LINE_HEIGHT_RATE / 2
+
+    for line in lines:
+        tokens = emoji_convert(line)
+
+        # 行幅計算
+        width = 0
+        for t in tokens:
+            width += font_size if t.isdigit() else len(t) * font_size * 0.6
+
+        x = CX - width / 2
+        elements = []
+
+        for t in tokens:
+            if t.isdigit():
+                img = requests.get(
+                    f"https://cdn.discordapp.com/emojis/{t}.png?size=96"
+                ).content
+                b64 = base64.b64encode(img).decode()
+
+                elements.append(f'''
+                <image
+                  href="data:image/png;base64,{b64}"
+                  x="{x}"
+                  y="{y - font_size * 0.8}"
+                  width="{font_size}"
+                  height="{font_size}" />
+                ''')
+                x += font_size
+
+            else:
+                elements.append(f'''
+                <text x="{x}" y="{y}"
+                      font-size="{font_size}"
+                      dominant-baseline="middle"
+                      text-anchor="start">
+                  {t}
+                </text>
+                ''')
+                x += len(t) * font_size * 0.6
+
+        groups.append("".join(elements))
+        y += font_size * LINE_HEIGHT_RATE
+
+    return "".join(groups)
+        
+async def remove_file(file: str):
     if os.path.exists(file):
         os.remove(file)
         
@@ -449,37 +549,28 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
                 '''
             )
 
+        lines = wrap_by_lines(text.content)
+        font_size = min(BASE_FONT_SIZE, int(260 / (len(lines) * LINE_HEIGHT_RATE)))
+
         svg = f'''<?xml version="1.0" encoding="UTF-8"?>
-            <svg width="{W}" height="{H}" viewBox="0 0 {W} {H}"
+        <svg width="{W}" height="{H}" viewBox="0 0 {W} {H}"
             xmlns="http://www.w3.org/2000/svg">
 
             <rect width="100%" height="100%" fill="#fff0f3"/>
-
-            {"".join(hearts)}
-
-            <text x="50%" y="50%"
-                text-anchor="middle"
-                dominant-baseline="middle"
-                font-size="96"
-                font-weight="bold"
-                font-family="Noto Sans CJK JP"
-                fill="pink">
-                {text.content}
-            </text>
+            {make_hearts()}
+            {build_text_groups(lines, font_size)}
 
             <text x="{W-16}" y="{H-16}"
                 text-anchor="end"
                 font-size="14"
-                fill="#777"
-                font-family="Noto Sans CJK JP">
+                fill="#777">
                 {signature}
             </text>
-
         </svg>
         '''
         
         """
-        lines = wrap_by_lines(text.content, MAX_LINES)
+        lines = wrap_by_lines(text.content)
         font_size = min(
             BASE_FONT_SIZE,
             int(AVAILABLE_HEIGHT / (len(lines) * LINE_HEIGHT_RATE))
