@@ -147,7 +147,6 @@ async def wrap_by_lines(text: str):
 async def emoji_convert(text: str):
     result = []
     last = 0
-
     for m in emoji_pattern.finditer(text):
         start, end = m.span()
         emoji_id = m.group(1)
@@ -543,7 +542,7 @@ async def free_app(interaction: discord.Interaction, prompt: discord.Message):
 async def miq(interaction: discord.Interaction, text: discord.Message):
     try:
         lines = await wrap_by_lines(text.content)
-        font_size = min(BASE_FONT_SIZE, int(260 / (len(lines) * LINE_HEIGHT_RATE)))
+        font_size = min(BASE_FONT_SIZE, int(AVAILABLE_HEIGHT / (len(lines) * LINE_HEIGHT_RATE)))
 
         svg = f'''<?xml version="1.0" encoding="UTF-8"?>
         <svg width="{W}" height="{H}" viewBox="0 0 {W} {H}"
