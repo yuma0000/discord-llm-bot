@@ -214,7 +214,7 @@ async def build_text_groups(lines, font_size):
     y = CY - (len(lines) - 1) * font_size * LINE_HEIGHT_RATE / 2
 
     for line in lines:
-        tokens = emoji_convert(line)
+        tokens = await emoji_convert(line)
 
         width = 0
         for t in tokens:
@@ -245,8 +245,8 @@ async def build_text_groups(lines, font_size):
                           height="{font_size}" />
                         '''
                     )
-                except Exception:
-                    pass  # 画像取得失敗は無視
+                except Exception as e:
+                    log.exception(e)
 
                 x += font_size
 
