@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     inkscape \
     && rm -rf /var/lib/apt/lists/* \
     && apt install -y fonts-noto-cjk \
-    fc-cache -fv
+    && fc-cache -fv
 
 # ===== Python依存関係 =====
 COPY requirements.txt .
