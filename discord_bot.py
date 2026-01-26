@@ -163,79 +163,115 @@ async def emoji_convert(text: str):
 
 async def make_hearts():
     hearts = []
-    step = 24
-    colors = ["#ff4d6d", "#ff758f", "#ff8fab"]
+    step = 20
+    old_scale = 0
+    positined = []
+    for i in range(0, W, step):
+        positined.append((i, 0))
+    for i in range(0, H, step):
+        positined.append((W, i))
+    for i in range(W, 0, -step):
+        positined.append((i, H))
+    for i in range(H, 0, -step):
+        positined.append((0, i))
 
-    points = []
-    for i in range(0, W, step): points.append((i, 0))
-    for i in range(0, H, step): points.append((W, i))
-    for i in range(W, 0, -step): points.append((i, H))
-    for i in range(H, 0, -step): points.append((0, i))
+    for x, y in positined:
+        dx = x - CX
+        dy = y - CY
 
-    for i, (x, y) in enumerate(points):
-        dx, dy = x - CX, y - CY
-        dist = math.hypot(dx, dy)
-        scale = min(1.0, dist / (W * 0.6))
-        ax, ay = CX + dx * scale, CY + dy * scale
+        scale = random.uniform(0.4, 1.0)
+        cs = scale - old_scale
+        if cs < 0.1 and cs > -0.1:
+            continue
 
-        hearts.append(f'''
-        <text x="{ax}" y="{ay}"
-              font-size="{32 * scale}"
-              text-anchor="middle"
-              dominant-baseline="middle"
-              fill="{colors[i % 3]}">
-          {HEART}
-        </text>
-        ''')
+        old_scale = scale
+        ax, ay = dx * scale, dy * scale
 
-    return "".join(hearts)
+        size = 100
+        rotate = 0
+        color = ["#ff4d6d", "#ff758f", "#ff8fab"][i % 3]
+
+        hearts.append(
+            f'''
+            <text x="{ax + CX}" y="{ay + CY}"
+                font-size="{size * scale}"
+                text-anchor="middle"
+                dominant-baseline="middle"
+                    transform="rotate({rotate},{x},{y})"
+                    fill="{color}">
+                    {HEART}
+            </text>
+            '''
+        )
+    return "\n".join(hearts)
 
 async def build_text_groups(lines, font_size):
-    groups = []
+    if not lines:
+        return ""
+
+    svg_groups = []
+
     y = CY - (len(lines) - 1) * font_size * LINE_HEIGHT_RATE / 2
 
     for line in lines:
-        tokens = await emoji_convert(line)
+        tokens = emoji_convert(line)
 
         width = 0
         for t in tokens:
-            width += font_size if t.isdigit() else len(t) * font_size * 0.6
+            if t.isdigit():
+                width += font_size
+            else:
+                width += len(t) * font_size * 0.6
 
         x = CX - width / 2
         elements = []
 
         for t in tokens:
             if t.isdigit():
-                img = requests.get(
-                    f"https://cdn.discordapp.com/emojis/{t}.png?size=96"
-                ).content
-                b64 = base64.b64encode(img).decode()
+                try:
+                    img = requests.get(
+                        f"https://cdn.discordapp.com/emojis/{t}.png?size=96",
+                        timeout=5
+                    ).content
+                    b64 = base64.b64encode(img).decode()
 
-                elements.append(f'''
-                <image
-                  href="data:image/png;base64,{b64}"
-                  x="{x}"
-                  y="{y - font_size * 0.8}"
-                  width="{font_size}"
-                  height="{font_size}" />
-                ''')
+                    elements.append(
+                        f'''
+                        <image
+                          href="data:image/png;base64,{b64}"
+                          x="{x}"
+                          y="{y - font_size * 0.8}"
+                          width="{font_size}"
+                          height="{font_size}" />
+                        '''
+                    )
+                except Exception:
+                    pass  # 画像取得失敗は無視
+
                 x += font_size
 
             else:
-                elements.append(f'''
-                <text x="{x}" y="{y}"
+                elements.append(
+                    f'''
+                    <text
+                      x="{x}"
+                      y="{y}"
                       font-size="{font_size}"
                       dominant-baseline="middle"
                       text-anchor="start">
-                  {t}
-                </text>
-                ''')
+                      {t}
+                    </text>
+                    '''
+                )
                 x += len(t) * font_size * 0.6
 
-        groups.append("".join(elements))
+        svg_groups.append(
+            f'<g>{"".join(elements)}</g>'
+        )
+
         y += font_size * LINE_HEIGHT_RATE
 
-    return "".join(groups)
+    return "".join(svg_groups)
         
 async def remove_file(file: str):
     if os.path.exists(file):
@@ -506,48 +542,6 @@ async def free_app(interaction: discord.Interaction, prompt: discord.Message):
 @bot.tree.context_menu(name="Make_is_a_Quate")
 async def miq(interaction: discord.Interaction, text: discord.Message):
     try:
-        hearts = []
-        step = 20
-        old_scale = 0
-        positined = []
-        for i in range(0, W, step):
-            positined.append((i, 0))
-        for i in range(0, H, step):
-            positined.append((W, i))
-        for i in range(W, 0, -step):
-            positined.append((i, H))
-        for i in range(H, 0, -step):
-            positined.append((0, i))
-
-        for x, y in positined:
-            dx = x - CX
-            dy = y - CY
-
-            scale = random.uniform(0.4, 1.0)
-            cs = scale - old_scale
-            if cs < 0.1 and cs > -0.1:
-                continue
-
-            old_scale = scale
-            ax, ay = dx * scale, dy * scale
-
-            size = 100
-            rotate = 0
-            color = ["#ff4d6d", "#ff758f", "#ff8fab"][i % 3]
-
-            hearts.append(
-                f'''
-                <text x="{ax + CX}" y="{ay + CY}"
-                      font-size="{size * scale}"
-                      text-anchor="middle"
-                      dominant-baseline="middle"
-                      transform="rotate({rotate},{x},{y})"
-                      fill="{color}">
-                      {HEART}
-                </text>
-                '''
-            )
-
         lines = await wrap_by_lines(text.content)
         font_size = min(BASE_FONT_SIZE, int(260 / (len(lines) * LINE_HEIGHT_RATE)))
 
