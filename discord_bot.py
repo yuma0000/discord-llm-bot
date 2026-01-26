@@ -132,7 +132,7 @@ MAX_LINES = math.floor(AVAILABLE_HEIGHT / (BASE_FONT_SIZE * LINE_HEIGHT_RATE))
 s = 0.50
 v = 0.80
 
-emoji_pattern = re.compile(r"<:\w+:\d+>")
+emoji_pattern = re.compile(r"<:\w+:(\d+)>")
 
 async def wrap_by_lines(text: str):
     texts = []
@@ -147,9 +147,11 @@ async def wrap_by_lines(text: str):
 async def emoji_convert(text: str):
     result = []
     last = 0
+
     for m in emoji_pattern.finditer(text):
         start, end = m.span()
         emoji_id = m.group(1)
+
         if start > last:
             result.append(text[last:start])
 
@@ -158,6 +160,7 @@ async def emoji_convert(text: str):
         
     if last < len(text):
         result.append(text[last:])
+
     return result
 
 async def make_hearts():
