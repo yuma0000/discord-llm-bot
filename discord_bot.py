@@ -334,7 +334,7 @@ async def mcserver(interaction: discord.Interaction):
         data = res.json()
         if data.get("online"):
             text = f"""
-                # サバ名: {data.get("motd").get("clean")}
+                # サバ名: {data.get("motd").get("clean")[0]}
                 ## 人数: {data.get("players").get("online")}
                 ### バージョン: {data.get("version")}
             """
@@ -342,7 +342,7 @@ async def mcserver(interaction: discord.Interaction):
             text = "鯖は現在オフラインです。"
     except Exception as e:
         print(e)
-        text = "情報が習得出来ませんでした。"
+        text = "情報が取得出来ませんでした。"
 
     await interaction.response.send_message(text)
 
@@ -408,7 +408,7 @@ async def free_app(interaction: discord.Interaction, prompt: discord.Message):
 async def miq(interaction: discord.Interaction, text: discord.Message):
     try:
         hearts = []
-        step = 30
+        step = 20
         old_scale = 0
         positined = []
         for i in range(0, W, step):
@@ -432,14 +432,14 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
             old_scale = scale
             ax, ay = dx * scale, dy * scale
 
-            size = 26
+            size = 100
             rotate = 0
             color = ["#ff4d6d", "#ff758f", "#ff8fab"][i % 3]
 
             hearts.append(
                 f'''
                 <text x="{ax + CX}" y="{ay + CY}"
-                      font-size="{size}"
+                      font-size="{size * scale}"
                       text-anchor="middle"
                       dominant-baseline="middle"
                       transform="rotate({rotate},{x},{y})"
