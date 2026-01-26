@@ -144,7 +144,7 @@ async def wrap_by_lines(text: str):
             texts.extend(textwrap.wrap(line, 30))
     return texts
 
-def emoji_convert(text: str):
+async def emoji_convert(text: str):
     result = []
     last = 0
 
@@ -161,7 +161,7 @@ def emoji_convert(text: str):
         result.append(text[last:])
     return result
 
-def make_hearts():
+async def make_hearts():
     hearts = []
     step = 24
     colors = ["#ff4d6d", "#ff758f", "#ff8fab"]
@@ -190,14 +190,13 @@ def make_hearts():
 
     return "".join(hearts)
 
-    def build_text_groups(lines, font_size):
+async def build_text_groups(lines, font_size):
     groups = []
     y = CY - (len(lines) - 1) * font_size * LINE_HEIGHT_RATE / 2
 
     for line in lines:
         tokens = emoji_convert(line)
 
-        # 行幅計算
         width = 0
         for t in tokens:
             width += font_size if t.isdigit() else len(t) * font_size * 0.6
