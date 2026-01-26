@@ -119,6 +119,8 @@ SEARCH_RESULTS = ""
 # ====== miq 生成 ======
 signature = "まにまにあ"
 W, H = 800, 500
+CX, CY = W // 2, H // 2
+HEART = "♥️"
 TOP_MARGIN = 80
 BOTTOM_MARGIN = 80
 AVAILABLE_HEIGHT = H - TOP_MARGIN - BOTTOM_MARGIN
@@ -405,6 +407,70 @@ async def free_app(interaction: discord.Interaction, prompt: discord.Message):
 @bot.tree.context_menu(name="Make_is_a_Quate")
 async def miq(interaction: discord.Interaction, text: discord.Message):
     try:
+        hearts = []
+        step = 30
+        old_scale = 0
+        positined = []
+        for i in range(0, W, step):
+            positined.append((i, 0))
+        for i in range(0, H, step):
+            positined.append((W, i))
+        for i in range(W, 0, -step):
+            positined.append((i, H))
+        for i in range(H, 0, -step):
+            positined.append((0, i))
+
+        for x, y in positined:
+            dx = x - CX
+            dy = y - CY
+
+            scale = random.uniform(0.4, 1.0)
+            cs = scale - old_scale
+            if cs < 0.1 and cs > -0.1:
+                continue
+
+            old_scale = scale
+            ax, ay = dx * scale, dy * scale
+
+            size = 26
+            rotate = 0
+            color = ["#ff4d6d", "#ff758f", "#ff8fab"][i % 3]
+
+            hearts.append(
+                f'''
+                <text x="{ax + CX}" y="{ay + CY}"
+                      font-size="{size}"
+                      text-anchor="middle"
+                      dominant-baseline="middle"
+                      transform="rotate({rotate},{x},{y})"
+                      fill="{color}">
+                      {HEART}
+                </text>
+                '''
+            )
+
+        svg = f'''<?xml version="1.0" encoding="UTF-8"?>
+        <svg width="{W}" height="{H}" viewBox="0 0 {W} {H}"
+             xmlns="http://www.w3.org/2000/svg">
+
+          <rect width="100%" height="100%" fill="#fff0f3"/>
+
+          {"".join(hearts)}
+
+          <text x="50%" y="50%"
+                text-anchor="middle"
+                dominant-baseline="middle"
+                font-size="96"
+                font-weight="bold"
+                font-family="sans-serif"
+                fill="pink">
+                {text}
+          </text>
+
+        </svg>
+        '''
+        
+        """
         lines = wrap_by_lines(text.content, MAX_LINES)
         font_size = min(
             BASE_FONT_SIZE,
@@ -446,6 +512,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
 
         </svg>
         '''
+        """
         
         with open(str(h) + ".svg", "w", encoding="utf-8") as f:
             f.write(svg)
