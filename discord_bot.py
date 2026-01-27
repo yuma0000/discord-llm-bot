@@ -472,9 +472,11 @@ async def mcserver(interaction: discord.Interaction):
         data = res.json()
         if data.get("online"):
             text = f"""
-                # サバ名: {data.get("motd").get("clean")[0]}
-                ## 人数: {data.get("players").get("online")}
-                ### バージョン: {data.get("version")}
+# サバ名: {data.get("motd").get("clean")[0]}
+```
+人数: {data.get("players").get("online")}
+```
+-# バージョン: {data.get("version")}
             """
         else:
             text = "鯖は現在オフラインです。"
@@ -497,10 +499,12 @@ async def maniaproduction(interaction: discord.Interaction):
         
         if game_data.get("4234500").get("success"):
             text = f"""
-                # ゲーム名: {game_data.get("4234500").get("data").get("name")}
-                ## 現在のプレイヤー数: {play_data.get("response").get("player_count")}
-                ### デベロッパー: {game_data.get("4234500").get("data").get("developers")[0]}
-                ### リリース日: {game_data.get("4234500").get("data").get("release_date").get("date")}
+# ゲーム名: {game_data.get("4234500").get("data").get("name")}
+```
+現在のプレイヤー数: {play_data.get("response").get("player_count")}
+```
+-# デベロッパー: {game_data.get("4234500").get("data").get("developers")[0]}
+-# リリース日: {game_data.get("4234500").get("data").get("release_date").get("date")}
             """
         else:
             text = "ゲームが見つかりませんでした。"
