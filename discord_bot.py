@@ -473,7 +473,7 @@ async def mcserver(interaction: discord.Interaction):
         if data.get("online"):
             embed = discord.Embed(
                 title=f'サバ名: {data.get("motd").get("clean")[0]}',
-                color=discord.Color.grey()
+                color=discord.Color.orange()
             )
 
             embed.add_field(name="人数", value=data.get("players").get("online"), inline=False)
@@ -503,7 +503,7 @@ async def maniaproduction(interaction: discord.Interaction, add :str = None):
         if game_data.get("4234500").get("success"):
             embed = discord.Embed(
                 title=f'ゲーム名: {game_data.get("4234500").get("data").get("name")}',
-                color=discord.Color.grey()
+                color=discord.Color.orange()
             )
 
             embed.add_field(name="現在のプレイヤー数", value=play_data.get("response").get("player_count"), inline=False)
