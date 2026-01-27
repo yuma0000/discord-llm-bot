@@ -90,6 +90,7 @@ mc_api = "https://api.mcsrvstat.us/3/mc.webmfan.net"
 
 # ====== 0.0035 ======
 game_api = "https://store.steampowered.com/api/appdetails?appids=4234500&cc=jp&l=ja"
+play_api = "https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=4234500"
 
 # ====== ログ設定 ======
 logging.basicConfig(
@@ -486,14 +487,22 @@ async def mcserver(interaction: discord.Interaction):
 @bot.tree.command(name="マニアプロダクション", description="MANIA PRODUCTIONの0.0035%のsteamを表示します")
 async def maniaproduction(interaction: discord.Interaction):
     try:
-        res = requests.get(game_api)
-        res.raise_for_status()
-        data = res.json()
-        if data.get("4234500").get("success"):
+        game_res = requests.get(game_api)
+        game_res.raise_for_status()
+        game_data = game_res.json()
+
+        play_res = requests.get(play_api)
+        play_res.raise_for_status()
+        play_data = play_res.json()
+        
+        if game_data.get("4234500").get("success"):
             text = f"""
-                # ゲーム名: {data.get("4234500").get("data").get("name")}
-                ## デベロッパー: {data.get("4234500").get("data").get("developers")[0]}
-                ### リリース日: {data.get("4234500").get("data").get("release_date").get("date")}
+                # ゲーム名: {game_data.get("4234500").get("data").get("name")}
+                ```
+                現在のプレイヤー数: {play_data.get("response").get("player_conut")}
+                ```
+                ## デベロッパー: {game_data.get("4234500").get("data").get("developers")[0]}
+                ### リリース日: {game_data.get("4234500").get("data").get("release_date").get("date")}
             """
         else:
             text = "ゲームが見つかりませんでした。"
