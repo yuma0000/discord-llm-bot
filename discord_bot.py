@@ -471,17 +471,19 @@ async def mcserver(interaction: discord.Interaction):
         res.raise_for_status()
         data = res.json()
         if data.get("online"):
-            text = f"""
-# サバ名: {data.get("motd").get("clean")[0]}
-```
-人数: {data.get("players").get("online")}
-```
--# バージョン: {data.get("version")}
-            """
+            embed = discord.Embed(
+                title=f'サバ名: {data.get("motd").get("clean")[0]}',
+                color=discord.Color.grey()
+            )
+
+            embed.add_field(name="人数", value=data.get("players").get("online"), inline=False)
+            embed.add_field(name="バージョン", value=data.get("version"), inline=False)
+            await interaction.response.send_message(embed=embed)
+            return True
         else:
             text = "鯖は現在オフラインです。"
     except Exception as e:
-        print(e)
+        log.exception(e)
         text = "情報が取得出来ませんでした。"
 
     await interaction.response.send_message(text)
@@ -499,16 +501,17 @@ async def maniaproduction(interaction: discord.Interaction, add :str = None):
         play_data = play_res.json()
         
         if game_data.get("4234500").get("success"):
-            text = f"""
-{add}
+            embed = discord.Embed(
+                title=f'ゲーム名: {game_data.get("4234500").get("data").get("name")}',
+                color=discord.Color.grey()
+            )
 
-# ゲーム名: {game_data.get("4234500").get("data").get("name")}
-```
-現在のプレイヤー数: {play_data.get("response").get("player_count")}
-```
--# デベロッパー: {game_data.get("4234500").get("data").get("developers")[0]}
--# リリース日: {game_data.get("4234500").get("data").get("release_date").get("date")}
-            """
+            embed.add_field(name="現在のプレイヤー数", value=play_data.get("response").get("player_count"), inline=False)
+            embed.add_field(name="デベロッパー", value=game_data.get("4234500").get("data").get("developers")[0], inline=False)
+            embed.add_field(name="リリース日", value=game_data.get("4234500").get("data").get("release_date").get("date"), inline=False)
+            embed.add_field(name="追記", value=add, inline=False)
+            await interaction.response.send_message(embed=embed)
+            return True
         else:
             text = "ゲームが見つかりませんでした。"
     except Exception as e:
