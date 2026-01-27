@@ -487,7 +487,8 @@ async def mcserver(interaction: discord.Interaction):
     await interaction.response.send_message(text)
 
 @bot.tree.command(name="マニアプロダクション", description="MANIA PRODUCTIONの0.0035%のsteamを表示します")
-async def maniaproduction(interaction: discord.Interaction):
+@app_commands.describe(add="テキストを追加できます")
+async def maniaproduction(interaction: discord.Interaction, add :str = None):
     try:
         game_res = requests.get(game_api)
         game_res.raise_for_status()
@@ -499,6 +500,8 @@ async def maniaproduction(interaction: discord.Interaction):
         
         if game_data.get("4234500").get("success"):
             text = f"""
+{add}
+
 # ゲーム名: {game_data.get("4234500").get("data").get("name")}
 ```
 現在のプレイヤー数: {play_data.get("response").get("player_count")}
