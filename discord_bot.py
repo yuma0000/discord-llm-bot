@@ -57,7 +57,7 @@ NUMERIC_PARAMS = {
 
 # ====== firebase 設定 ======
 # Railwayの環境変数に JSON丸ごと入れておく
-cred_json = json.loads(os.getenv("FIREBASE_CREDENTIALS")
+cred_json = json.loads(os.getenv("FIREBASE_CREDENTIALS"))
 
 cred = credentials.Certificate(cred_json)
 firebase_admin.initialize_app(cred)
@@ -586,7 +586,7 @@ async def free_app(interaction: discord.Interaction, prompt: discord.Message):
 @bot.tree.context_menu(name="Make_is_a_Quate")
 async def miq(interaction: discord.Interaction, text: discord.Message):
     try:
-        lines = await wrap_by_lines(text.content)
+        lines = await wrap_by_lines(text.clean_content)
         font_size = min(BASE_FONT_SIZE, int(AVAILABLE_HEIGHT / (len(lines) * LINE_HEIGHT_RATE)))
 
         svg = f'''<?xml version="1.0" encoding="UTF-8"?>
