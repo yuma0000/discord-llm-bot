@@ -572,6 +572,15 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
             {await make_hearts()}
             {await build_text_groups(lines, font_size)}
 
+             <text x="50%" y="{lines * font_size + 50}"
+                text-anchor="middle"
+                dominant-baseline="middle"
+                font-size="{font_size * 0.7}"
+                font-family="Nato Sans JP"
+                fill="#080808">
+                {text.author.display_name}
+            </text>
+
             <text x="{W-16}" y="{H-16}"
                 text-anchor="end"
                 font-size="14"
