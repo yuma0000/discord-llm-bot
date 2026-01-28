@@ -476,8 +476,8 @@ async def mcserver(interaction: discord.Interaction):
                 color=discord.Color.orange()
             )
 
-            embed.add_field(name="人数", value=data.get("players").get("online"), inline=False)
-            embed.add_field(name="バージョン", value=data.get("version"), inline=False)
+            embed.add_field(name="人数", value=data.get("players").get("online"), inline=True)
+            embed.add_field(name="バージョン", value=data.get("version"), inline=True)
             await interaction.response.send_message(embed=embed)
             return True
         else:
@@ -506,10 +506,10 @@ async def maniaproduction(interaction: discord.Interaction, add :str = None):
                 color=discord.Color.orange()
             )
 
-            embed.add_field(name="現在のプレイヤー数", value=play_data.get("response").get("player_count"), inline=False)
-            embed.add_field(name="デベロッパー", value=game_data.get("4234500").get("data").get("developers")[0], inline=False)
-            embed.add_field(name="リリース日", value=game_data.get("4234500").get("data").get("release_date").get("date"), inline=False)
-            embed.add_field(name="追記", value=add, inline=False)
+            embed.add_field(name="現在のプレイヤー数", value=play_data.get("response").get("player_count"), inline=True)
+            embed.add_field(name="デベロッパー", value=game_data.get("4234500").get("data").get("developers")[0], inline=True)
+            embed.add_field(name="リリース日", value=game_data.get("4234500").get("data").get("release_date").get("date"), inline=True)
+            embed.add_field(name="追記", value=add, inline=True)
             await interaction.response.send_message(embed=embed)
             return True
         else:
