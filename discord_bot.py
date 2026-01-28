@@ -122,7 +122,7 @@ SEARCH_RESULTS = ""
 signature = "まにまにあ"
 W, H = 500, 300
 CX, CY = W // 2, H // 2
-HEART = "🐾"
+HEART = "♥️"
 TOP_MARGIN = 80
 BOTTOM_MARGIN = 80
 AVAILABLE_HEIGHT = H - TOP_MARGIN - BOTTOM_MARGIN
@@ -681,6 +681,42 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         text = "MiQが作成出来ませんでした。"
         await interaction.followup.send(content=text)
 
+@bot.tree.context_menu(name="画像をinkscapeを使いsvgにする")
+async def svg_convert(interaction: discord.Interaction, message: discord.Message):
+    await interaction.response.defer(thinking=True)
+
+    if not message.attachments:
+        await interaction.followup.send("画像が見つかりません")
+        return
+
+    attachment = message.attachments[0]
+
+    if not (attachment.content_type and attachment.content_type.startswith("image/")):
+        await interaction.followup.send("利用不可な形式です。")
+        return
+
+    input_path = f"{attachment.filename}"
+    output_path = f"{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.svg"
+
+    await attachment.save(input_path)
+
+    subprocess.run(
+        [
+            "inkscape",
+            input_path,
+            "--export-type=svg",
+            f"--export-filename={output_path}"
+        ],
+        check=True
+    )
+
+    await interaction.followup.send(
+        file=discord.File(output_path)
+    )
+
+    os.remove(input_path)
+    os.remove(output_path)
+    
 # ====== !mania プレフィックス ======
 @bot.command(name="mania")
 async def mania_prefix(ctx, *, prompt: str):
