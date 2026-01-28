@@ -122,7 +122,7 @@ SEARCH_RESULTS = ""
 signature = "まにまにあ"
 W, H = 500, 300
 CX, CY = W // 2, H // 2
-HEART = "♥️"
+HEART = "🙊"
 TOP_MARGIN = 80
 BOTTOM_MARGIN = 80
 AVAILABLE_HEIGHT = H - TOP_MARGIN - BOTTOM_MARGIN
@@ -142,7 +142,7 @@ async def wrap_by_lines(text: str):
         if emoji_pattern.search(line):
             texts.append(line)
         else:
-            texts.extend(textwrap.wrap(line, 10))
+            texts.extend(textwrap.wrap(line, 18))
     return texts
 
 async def emoji_convert(text: str):
@@ -597,7 +597,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
             {await make_hearts()}
             {await build_text_groups(lines, font_size)}
 
-             <text x="50%" y="{(lines * font_size)}"
+             <text x="50%" y="{(lines * BASE_FONT_SIZE)}"
                 text-anchor="middle"
                 dominant-baseline="middle"
                 font-size="{font_size * 0.7}"
