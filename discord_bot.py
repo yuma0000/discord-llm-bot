@@ -260,6 +260,7 @@ async def build_text_groups(lines, font_size):
                       x="{x}"
                       y="{y}"
                       font-size="{font_size}"
+                      font-family="Noto Sans CJK JP"
                       dominant-baseline="middle"
                       text-anchor="start">
                       {t}
@@ -531,17 +532,41 @@ async def setname(interaction: discord.Interaction, name: str):
 
     await interaction.response.send_message("⚠️ 無効なパラメータです。")
 
-#====== /nitro_present ======
-@bot.tree.command(name="nitro_present", description="ニトロをプレゼント致します。")
+#====== /ニトロプレゼント ======
+@bot.tree.command(name="ニトロプレゼント", description="ニトロをプレゼント致します。")
 @app_commands.describe(url="追加または削除をします")
 async def nitro_present(interaction: discord.Interaction, url: str = None):
     await discord_collections(interaction, url, "nitro_present", "残念ながら現在nitroの配布は行っておりません。", "リンクを追加致しました。", "リンクを削除致しました。")
 
-#====== /random_message
-@bot.tree.command(name="random_message", description="ランダムに追加したメッセージを返します")
+#====== /ランダムメッセージ
+@bot.tree.command(name="ランダムメッセージ", description="ランダムに追加したメッセージを返します")
 @app_commands.describe(message="追加または削除をします")
 async def random_message(interaction: discord.Interaction, message: str = None):
     await discord_collections(interaction, message, "random_message", "メッセージが一つも登録されてません。", "メッセージを追加しました。", "メッセージを削除致しました。")
+
+@bot.tree.command(name="svg作成", description="svgを作成出来ます")
+@app_commands.describe(text="svgコードを入力して下さい。")
+async def svg_create(interaction: discord.Interaction, text: str):
+    try:
+        h = random.random()
+        with open(str(h) + ".svg", "w", encoding="utf-8") as f:
+            f.write(text)
+
+        subprocess.run(
+            ["inkscape", str(h) + ".svg", "--export-type=png", "--export-filename=" + str(h) + ".png"],
+            check=True
+        )
+        
+        await interaction.response.defer()
+        await interaction.followup.send(file=discord.File(str(h) + ".png"))
+        
+        remove_file(str(h) + ".svg")
+        remove_file(str(h) + ".png")
+        
+    except Exception as e:
+        log.Exception(e)
+        text = "SVGが作成出来ませんでした。"
+        await interaction.followup.send(content=text)
 
 #======= アプリコマンド =======
 @bot.tree.context_menu(name="mania")
@@ -572,11 +597,11 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
             {await make_hearts()}
             {await build_text_groups(lines, font_size)}
 
-             <text x="50%" y="{lines * font_size + 50}"
+             <text x="50%" y="{(lines * font_size) + 50}"
                 text-anchor="middle"
                 dominant-baseline="middle"
                 font-size="{font_size * 0.7}"
-                font-family="Nato Sans JP"
+                font-family="Noto Sans CJK JP"
                 fill="#080808">
                 {text.author.display_name}
             </text>
