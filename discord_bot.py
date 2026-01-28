@@ -57,7 +57,7 @@ NUMERIC_PARAMS = {
 
 # ====== firebase 設定 ======
 # Railwayの環境変数に JSON丸ごと入れておく
-cred_json = json.loads(os.environ["FIREBASE_CREDENTIALS"])
+cred_json = json.loads(os.getenv("FIREBASE_CREDENTIALS")
 
 cred = credentials.Certificate(cred_json)
 firebase_admin.initialize_app(cred)
@@ -86,11 +86,11 @@ def load_profile(user_id: str):
     return data.get("intro")
 
 # ====== minecraft ======
-mc_api = "https://api.mcsrvstat.us/3/mc.webmfan.net"
+mc_api = os.getenv("mc_ip")
 
 # ====== 0.0035 ======
-game_api = "https://store.steampowered.com/api/appdetails?appids=4234500&cc=jp&l=ja"
-play_api = "https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=4234500"
+game_api = os.getenv("steam_app")
+play_api = os.getenv("steam_players")
 
 # ====== ログ設定 ======
 logging.basicConfig(
@@ -597,7 +597,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
             {await make_hearts()}
             {await build_text_groups(lines, font_size)}
 
-             <text x="50%" y="{(lines * font_size)}%"
+             <text x="50%" y="{(lines * font_size)}"
                 text-anchor="middle"
                 dominant-baseline="middle"
                 font-size="{font_size * 0.7}"
