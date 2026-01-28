@@ -122,7 +122,7 @@ SEARCH_RESULTS = ""
 signature = "まにまにあ"
 W, H = 500, 300
 CX, CY = W // 2, H // 2
-HEART = "🙊"
+HEART = "♥️"
 TOP_MARGIN = 80
 BOTTOM_MARGIN = 80
 AVAILABLE_HEIGHT = H - TOP_MARGIN - BOTTOM_MARGIN
@@ -597,7 +597,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
             {await make_hearts()}
             {await build_text_groups(lines, font_size)}
 
-             <text x="50%" y="{TOP_MARGIN + int(len(lines) * font_size) + 50}"
+             <text x="50%" y="{TOP_MARGIN + (len(lines) * font_size) + 150}"
                 text-anchor="middle"
                 dominant-baseline="middle"
                 font-size="{font_size * 0.7}"
