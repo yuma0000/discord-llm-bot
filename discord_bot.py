@@ -130,8 +130,8 @@ BASE_FONT_SIZE = 24
 LINE_HEIGHT_RATE = 1.4
 MAX_LINES = math.floor(AVAILABLE_HEIGHT / (BASE_FONT_SIZE * LINE_HEIGHT_RATE))
 
-s = 0.50
-v = 0.80
+s = 0.5
+v = 1.0
 
 emoji_pattern = re.compile(r"<:\w+:(\d+)>")
 
