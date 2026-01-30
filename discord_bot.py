@@ -226,7 +226,7 @@ async def build_text_groups(lines, font_size):
             else:
                 width += len(t) * font_size * 0.6
 
-        x = CX - width / 1.5
+        x = CX - width / 1.3
         elements = []
 
         for t in tokens:
