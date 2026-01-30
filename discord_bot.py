@@ -590,13 +590,13 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         lines = await wrap_by_lines(text.clean_content)
         font_size = min(BASE_FONT_SIZE, int(AVAILABLE_HEIGHT / (len(lines) * LINE_HEIGHT_RATE)))
 
+        h = random.random()
+        r, g, b = colorsys.hsv_to_rgb(h, s, v)
+        bg_color = f"rgb({int(r*255)}, {int(g*255)}, {int(b*255)})"
+        
         svg = f'''<?xml version="1.0" encoding="UTF-8"?>
         <svg width="{W}" height="{H}" viewBox="0 0 {W} {H}"
             xmlns="http://www.w3.org/2000/svg">
-
-            h = random.random()
-            r, g, b = colorsys.hsv_to_rgb(h, s, v)
-            bg_color = f"rgb({int(r*255)}, {int(g*255)}, {int(b*255)})"
             
             <rect width="100%" height="100%" fill={bg_color}/> ##fff0f3
             {await make_hearts()}
