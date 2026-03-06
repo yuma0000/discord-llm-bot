@@ -773,7 +773,8 @@ async def svg_convert(interaction: discord.Interaction, message: discord.Message
 @bot.tree.context_menu(name="discordのmessageオブジェクト情報")
 async def discord_object(interaction: discord.Interaction, message: discord.Message):
     data = extract_message_data(message, max_depth=5)
-    await interaction.response.send_message(json.dumps(data, indent=2, ensure_ascii=False)[:1999])
+    text = json.dumps(data, indent=2, ensure_ascii=False)
+    await interaction.response.send_message(text)
     
 # ====== !mania プレフィックス ======
 @bot.command(name="mania")
