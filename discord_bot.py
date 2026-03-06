@@ -209,7 +209,7 @@ async def make_hearts():
         )
     return "\n".join(hearts)
 
-def build_text_groups(lines, font_size):
+async def build_text_groups(lines, font_size):
     if not lines:
         return ""
 
