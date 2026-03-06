@@ -122,7 +122,7 @@ SEARCH_RESULTS = ""
 signature = "まにまにあ"
 W, H = 500, 300
 CX, CY = W // 2, H // 2
-HEART = "ゆ"
+HEART = "マニア"
 TOP_MARGIN = 80
 BOTTOM_MARGIN = 80
 AVAILABLE_HEIGHT = H - TOP_MARGIN - BOTTOM_MARGIN
@@ -281,7 +281,56 @@ async def build_text_groups(lines, font_size):
 async def remove_file(file: str):
     if os.path.exists(file):
         os.remove(file)
-        
+
+async def extract_message_data(obj, max_depth=5):
+    seen = set()
+    def explore(value, depth):
+        if depth > max_depth:
+            return "[MaxDepth]"
+        if value is None:
+            return None
+        if isinstance(value, (str, int, float, bool)):
+            return value
+        if isinstance(value, bytes):
+            return str(value)
+        if id(value) in seen:
+            return "[Circular]"
+        seen.add(id(value))
+        # list / tuple
+        if isinstance(value, (list, tuple, set)):
+            result = []
+            for item in value:
+                try:
+                    result.append(explore(item, depth + 1))
+                except Exception:
+                    result.append("[Error]")
+            return result
+        # dict
+        if isinstance(value, dict):
+            result = {}
+            for k, v in value.items():
+                try:
+                    result[str(k)] = explore(v, depth + 1)
+                except Exception:
+                    result[str(k)] = "[Error]"
+            return result
+        # object
+        if hasattr(value, "__dict__"):
+            result = {}
+            for key in dir(value):
+                if key.startswith("_"):
+                    continue
+                try:
+                    attr = getattr(value, key)
+                    if callable(attr):
+                        continue
+                    result[key] = explore(attr, depth + 1)
+                except Exception:
+                    result[key] = "[Error]"
+            return result
+        return str(value)
+    return explore(obj, 0)
+
 # ====== ストリーミング生成 ======
 async def generate_stream(prompt: str, match_cat):
     text = "## 現在利用不可です。"
@@ -720,6 +769,11 @@ async def svg_convert(interaction: discord.Interaction, message: discord.Message
 
     os.remove(input_path)
     os.remove(output_path)
+
+@bot.tree.context_menu(name="discordのmessageオブジェクト情報")
+async def discord_object(interaction: discord.Interaction, message: discord.Message):
+    data = extract_message_data(message, max_depth=5)
+    await interaction.response.send_message(json.dumps(data, indent=2, ensure_ascii=False)[:1999])
     
 # ====== !mania プレフィックス ======
 @bot.command(name="mania")
