@@ -17,6 +17,7 @@ from pathlib import Path
 import textwrap
 import math
 import subprocess
+import inspect
 from datetime import datetime
 
 from discord.ext import commands
@@ -208,7 +209,7 @@ async def make_hearts():
         )
     return "\n".join(hearts)
 
-async def build_text_groups(lines, font_size):
+def build_text_groups(lines, font_size):
     if not lines:
         return ""
 
@@ -278,11 +279,11 @@ async def build_text_groups(lines, font_size):
 
     return "".join(svg_groups)
         
-async def remove_file(file: str):
+def remove_file(file: str):
     if os.path.exists(file):
         os.remove(file)
 
-async def extract_message_data(obj, max_depth=5):
+def extract_message_data(obj, max_depth=5):
     seen = set()
     def explore(value, depth):
         if depth > max_depth:
@@ -296,13 +297,21 @@ async def extract_message_data(obj, max_depth=5):
         if id(value) in seen:
             return "[Circular]"
         seen.add(id(value))
-        # list / tuple
+        # coroutine除外
+        if inspect.iscoroutine(value):
+            return "[Coroutine]"
+        # function除外
+        if inspect.isfunction(value):
+            return "[Function]"
+        if inspect.ismethod(value):
+            return "[Method]"
+        # list
         if isinstance(value, (list, tuple, set)):
             result = []
             for item in value:
                 try:
                     result.append(explore(item, depth + 1))
-                except Exception:
+                except:
                     result.append("[Error]")
             return result
         # dict
@@ -311,7 +320,7 @@ async def extract_message_data(obj, max_depth=5):
             for k, v in value.items():
                 try:
                     result[str(k)] = explore(v, depth + 1)
-                except Exception:
+                except:
                     result[str(k)] = "[Error]"
             return result
         # object
@@ -324,8 +333,10 @@ async def extract_message_data(obj, max_depth=5):
                     attr = getattr(value, key)
                     if callable(attr):
                         continue
+                    if inspect.iscoroutine(attr):
+                        continue
                     result[key] = explore(attr, depth + 1)
-                except Exception:
+                except:
                     result[key] = "[Error]"
             return result
         return str(value)
