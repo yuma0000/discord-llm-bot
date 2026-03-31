@@ -662,7 +662,7 @@ async def nitro_present(interaction: discord.Interaction, url: str = None):
 @bot.tree.command(name="ランダムメッセージ", description="ランダムに追加したメッセージを返します")
 @app_commands.describe(message="追加または削除をします")
 async def random_message(interaction: discord.Interaction, message: str = None):
-    await discord_collections(interaction, message, "random_message", "メッセージが一つも登録されてません。", "メッセージを追加しました。", "メッセージを削除致しました。")
+    await discord_collections(interaction, message, "random_message", "メッセージが一つも登録されてません。", f"{message}\nをメッセージを追加しました。", f"{message}\nをメッセージを削除致しました。")
 
 @bot.tree.command(name="svg作成", description="svgを作成出来ます")
 @app_commands.describe(text="svgコードを入力して下さい。")
