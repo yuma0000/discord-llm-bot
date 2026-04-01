@@ -201,11 +201,13 @@ async def make_hearts():
             f'''
             <text x="{ax + CX}" y="{ay + CY}"
                 font-size="{size * scale}"
+                font-family="{FONT_NAME}"
+                font-weight="bold"
                 text-anchor="middle"
                 dominant-baseline="middle"
-                    transform="rotate({rotate},{x},{y})"
-                    fill="{color}">
-                    {HEART}
+                transform="rotate({rotate},{x},{y})"
+                fill="{color}">
+                {HEART}
             </text>
             '''
         )
