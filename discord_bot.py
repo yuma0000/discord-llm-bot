@@ -131,7 +131,8 @@ BASE_FONT_SIZE = 24
 LINE_HEIGHT_RATE = 1.4
 MAX_LINES = math.floor(AVAILABLE_HEIGHT / (BASE_FONT_SIZE * LINE_HEIGHT_RATE))
 #FONT_NAME = "Noto Sans CJK JP, sans-serif"
-FONT_NAME = "Plus50yen-de-TonJiru-ni-Henkoudekimasu"
+#FONT_NAME = "Plus50yen-de-TonJiru-ni-Henkoudekimasu"
+FONT_NAME = "Plus50yen"
 
 s = 0.5
 v = 1.0
