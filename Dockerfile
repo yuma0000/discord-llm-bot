@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y \
     fonts-noto-cjk \
     && cp Plus50yen-de-TonJiru-ni-Henkoudekimasu.ttf /usr/share/fonts/ \
     && fc-cache -fv \
-    && fc-list \
     && rm -rf /var/lib/apt/lists/*
 
 # ===== Python依存関係 =====
