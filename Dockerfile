@@ -6,12 +6,12 @@ WORKDIR /app
 
 # ===== 必要パッケージ =====
 COPY Plus50yen-de-TonJiru-ni-Henkoudekimasu.ttf .
-RUN apt-get update && apt-get install -y \
+RUN cp Plus50yen-de-TonJiru-ni-Henkoudekimasu.ttf /usr/share/fonts/ \
+    && apt-get update && apt-get install -y \
     build-essential \
     cmake \
     inkscape \
     fonts-noto-cjk \
-    && cp Plus50yen-de-TonJiru-ni-Henkoudekimasu.ttf /usr/share/fonts/ \
     && fc-cache -fv \
     && rm -rf /var/lib/apt/lists/*
 
