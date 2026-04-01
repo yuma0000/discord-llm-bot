@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     && fc-cache -fv \
     && rm -rf /var/lib/apt/lists/*
 
-RUN cp Plus50yen-de-TonJiru-ni-Henkoudekimasu.ttf ~/.local/share/fonts/ && fc-cache -fv
+RUN cp Plus50yen-de-TonJiru-ni-Henkoudekimasu.ttf ~/.local/share/fonts/ && fc-cache -fv && fc-list
 
 # ===== Python依存関係 =====
 COPY requirements.txt .
