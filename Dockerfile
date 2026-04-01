@@ -5,13 +5,13 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # ===== 必要パッケージ =====
-COPY Plus50yen-de-TonJiru-ni-Henkoudekimasu.ttf .
+COPY Plus50yen-de-TonJiru-ni-Henkoudekimasu-regular.ttf .
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
     inkscape \
     fonts-noto-cjk \
-    && cp Plus50yen-de-TonJiru-ni-Henkoudekimasu.ttf /usr/share/fonts/ \
+    && cp Plus50yen-de-TonJiru-ni-Henkoudekimasu-regular.ttf /usr/share/fonts/ \
     && fc-cache -fv \
     && rm -rf /var/lib/apt/lists/*
 
