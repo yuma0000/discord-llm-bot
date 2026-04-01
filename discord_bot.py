@@ -263,7 +263,7 @@ async def build_text_groups(lines, font_size):
                       x="{x}"
                       y="{y}"
                       font-size="{font_size}"
-                      font-family={FONT_NAME}
+                      font-family="{FONT_NAME}"
                       font-weight="bold"
                       dominant-baseline="middle"
                       text-anchor="start">
@@ -727,7 +727,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
                 text-anchor="middle"
                 dominant-baseline="middle"
                 font-size="{font_size * 0.7}"
-                font-family={FONT_NAME}
+                font-family="{FONT_NAME}"
                 font-weight="bold"
                 fill="#080808">
                 {text.author.display_name}
