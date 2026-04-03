@@ -346,6 +346,7 @@ def extract_message_data(obj, max_depth=5):
         return str(value)
     return explore(obj, 0)
 
+'''
 def format_message_info(message):
     lines = []
     lines.append("===== MESSAGE =====")
@@ -404,6 +405,7 @@ def format_message_info(message):
     lines.append("===== POSITION =====")
     lines.append(f"position: {message.position}")
     return "\n".join(lines)
+'''
 
 # ====== ストリーミング生成 ======
 async def generate_stream(prompt: str, match_cat):
@@ -844,11 +846,13 @@ async def svg_convert(interaction: discord.Interaction, message: discord.Message
     os.remove(input_path)
     os.remove(output_path)
 
+'''
 @bot.tree.context_menu(name="discordのmessageオブジェクト情報")
 async def discord_object(interaction: discord.Interaction, message: discord.Message):
     data = format_message_info(message)
     text = json.dumps(data, indent=2, ensure_ascii=False)
     await interaction.response.send_message(text)
+'''
 
 @bot.tree.context_menu(name="自己紹介を保存するよ！")
 async def self_intro_save(interaction: discord.Interaction, message: discord.Message):
