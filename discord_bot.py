@@ -857,9 +857,9 @@ async def discord_object(interaction: discord.Interaction, message: discord.Mess
 @bot.tree.context_menu(name="自己紹介を保存するよ！")
 async def self_intro_save(interaction: discord.Interaction, message: discord.Message):
     user_id = str(message.author.id)
-    text = f"{message.content}\n\n[元のメッセージへ]({message.jump_url()})"
+    text = f"{message.content}\n\n[元のメッセージへ]({message.jump_url})"
     save_profile(user_id, text)
-    await interaction.response.send_message(f"{message.author.display_name}の自己紹介を保存したよ！\n[元のメッセージへ]({message.jump_url()})")
+    await interaction.response.send_message(f"{message.author.display_name}の自己紹介を保存したよ！\n[元のメッセージへ]({message.jump_url})")
     
 # ====== !mania プレフィックス ======
 @bot.command(name="mania")
