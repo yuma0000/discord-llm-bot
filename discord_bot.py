@@ -144,8 +144,8 @@ async def wrap_by_lines(text: str):
     for line in lines:
         if emoji_pattern.search(line):
             texts.append(line)
-        else:
-            texts.extend(textwrap.wrap(line, 18))
+        #else:
+            #texts.extend(textwrap.wrap(line, 18))
     return texts
 
 async def emoji_convert(text: str):
