@@ -421,7 +421,7 @@ class ManiaBot(commands.Bot):
         intents.message_content = True
         intents.messages = True
         intents.guild_messages = True
-        super().__init__(command_prefix="!", intents=intents)
+        super().__init__(command_prefix="!", intents=intents, allowed_mentions=discord.AllowedMentions.none())
 
     async def setup_hook(self):
         try:
