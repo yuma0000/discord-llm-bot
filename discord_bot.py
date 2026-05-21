@@ -409,7 +409,7 @@ def format_message_info(message):
 
 # ====== ストリーミング生成 ======
 async def generate_stream(prompt: str, match_cat):
-    text = "## 現在利用不可です。"
+    text = "## 42"
 
     yield text
     await asyncio.sleep(STREAM_DELAY)
