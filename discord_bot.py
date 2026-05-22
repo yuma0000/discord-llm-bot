@@ -409,10 +409,8 @@ def format_message_info(message):
 
 # ====== ストリーミング生成 ======
 async def generate_stream(prompt: str, match_cat):
-    text = "## 今は使えないから 42 を返すね"
-
+    text = "## 現在は利用不可です"
     return text
-    #await asyncio.sleep(STREAM_DELAY)
 
 # ====== Discord Bot ======
 class ManiaBot(commands.Bot):
@@ -437,7 +435,7 @@ class ManiaBot(commands.Bot):
 bot = ManiaBot()
 
 async def discord_generate(interaction: discord.Interaction, prompt: str, is_base: bool = True):
-    await interaction.response.send_message(await generate_stream(prompt, is_base))
+    await interaction.response.send_message(f`## {prompt}`)
 
     '''
     await interaction.response.send_message("生成中です…")
