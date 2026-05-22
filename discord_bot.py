@@ -435,7 +435,7 @@ class ManiaBot(commands.Bot):
 bot = ManiaBot()
 
 async def discord_generate(interaction: discord.Interaction, prompt: str, is_base: bool = True):
-    await interaction.response.send_message(f`## {prompt}`)
+    await interaction.response.send_message(f"## {prompt}")
 
     '''
     await interaction.response.send_message("生成中です…")
@@ -697,11 +697,11 @@ async def mania_app(interaction: discord.Interaction, prompt: discord.Message):
     ]
     text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
-    await discord_generate(interaction, text, None, True)
+    await discord_generate(interaction, text, True)
 
 @bot.tree.context_menu(name="free")
 async def free_app(interaction: discord.Interaction, prompt: discord.Message):
-    await discord_generate(interaction, str(prompt.content), None, False)
+    await discord_generate(interaction, str(prompt.content), False)
 
 @bot.tree.context_menu(name="Make_is_a_Quate")
 async def miq(interaction: discord.Interaction, text: discord.Message):
