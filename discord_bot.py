@@ -409,7 +409,7 @@ def format_message_info(message):
 
 # ====== ストリーミング生成 ======
 async def generate_stream(prompt: str, match_cat):
-    text = "##今は使えないから 42 を返すね"
+    text = "## 今は使えないから 42 を返すね"
 
     return text
     #await asyncio.sleep(STREAM_DELAY)
