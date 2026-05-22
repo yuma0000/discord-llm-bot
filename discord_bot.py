@@ -492,15 +492,15 @@ async def discord_collections(interaction: discord.Interaction, message: str, do
 
 # ====== /mania ======
 @bot.tree.command(name="mania", description="ウェブマニアとして回答します。")
-@app_commands.describe(prompt="質問内容を入力してください。", reply_to="返信したいメッセージID")
-async def mania_slash(interaction: discord.Interaction, prompt: str, reply_to: str = None):
-    await discord_generate(interaction, prompt, reply_to, True)
+@app_commands.describe(prompt="質問内容を入力してください。")
+async def mania_slash(interaction: discord.Interaction, prompt: str):
+    await discord_generate(interaction, prompt, True)
 
 # ====== /free ======
 @bot.tree.command(name="free", description="自由に質問できます。")
 @app_commands.describe(prompt="質問内容を入力してください。")
 async def free_slash(interaction: discord.Interaction, prompt: str):
-    await discord_generate(interaction, prompt, None, False)
+    await discord_generate(interaction, prompt, False)
 
 # ====== /search コマンド ======
 #@bot.tree.command(name="search", description="キーワードに基づいて検索結果を返します。")
