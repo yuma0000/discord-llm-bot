@@ -436,7 +436,7 @@ class ManiaBot(commands.Bot):
 
 bot = ManiaBot()
 
-async def discord_generate(interaction: discord.Interaction, prompt: str, reply_to: str, is_base: bool = True):
+async def discord_generate(interaction: discord.Interaction, prompt: str, is_base: bool = True):
     await interaction.response.send_message("生成中です…")
     msg = await interaction.original_response()
 
@@ -448,15 +448,7 @@ async def discord_generate(interaction: discord.Interaction, prompt: str, reply_
             if len(collected) > MAX_DISCORD_LENGTH else collected
         )
 
-    if reply_to:
-        channel = interaction.channel
-        try:
-            target = await channel.fetch_message(int(reply_to))
-            await target.reply(collected)
-        except:
-            await msg.edit(content=collected + "\n⚠️返信対象メッセージが見つかりませんでした。")
-    else:
-        await msg.edit(content=collected)
+    await msg.edit(content=collected)
 
 async def discord_collections(interaction: discord.Interaction, message: str, document: str, not_mess: str, add_mess: str, del_mess: str):
     try:
