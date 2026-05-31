@@ -712,7 +712,33 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         h = random.random()
         r, g, b = colorsys.hsv_to_rgb(h, s, v)
         bg_color = f"rgb({int(r*255)}, {int(g*255)}, {int(b*255)})"
+
+
+        svg = f'''<?xml version="1.0" encoding="UTF-8"?>
+            <svg width="100%" height="100%" viewBox="0 0 400 400"
+            xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="100%" height="100%" fill="black" />
+            <text x="10" y="50" font-size="32" fill="#ddd">ウェブマニア公認鯖</text>
+            <circle cx="200" cy="230" r="150" fill="#006" />
+            <text x="50%" y="{TOP_MARGIN + (len(lines) * font_size) + 100}"
+                text-anchor="middle"
+                dominant-baseline="middle"
+                font-size="{font_size * 0.7}"
+                font-family="{FONT_NAME}"
+                font-weight="bold"
+                fill="#080808">
+                {text.author.display_name}
+            </text>
+
+            <text x="{W-16}" y="{H-16}"
+                text-anchor="end"
+                font-size="14"
+                fill="#777">
+                {signature}
+            </text>
+        </svg>'''
         
+        '''
         svg = f'''<?xml version="1.0" encoding="UTF-8"?>
         <svg width="{W}" height="{H}" viewBox="0 0 {W} {H}"
             xmlns="http://www.w3.org/2000/svg">
@@ -738,6 +764,8 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
                 {signature}
             </text>
         </svg>
+        '''
+    
         '''
         
         """
