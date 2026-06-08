@@ -738,7 +738,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
             </text>
         </svg>'''
         
-        '''
+        """
         svg = f'''<?xml version="1.0" encoding="UTF-8"?>
         <svg width="{W}" height="{H}" viewBox="0 0 {W} {H}"
             xmlns="http://www.w3.org/2000/svg">
@@ -766,7 +766,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         </svg>
         '''
     
-        '''
+        """
         
         """
         lines = wrap_by_lines(text.content)
