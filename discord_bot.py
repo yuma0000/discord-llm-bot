@@ -19,6 +19,7 @@ import math
 import subprocess
 import inspect
 from datetime import datetime
+from html import escape
 
 from discord.ext import commands
 from discord import app_commands
@@ -707,13 +708,78 @@ async def free_app(interaction: discord.Interaction, prompt: discord.Message):
 async def miq(interaction: discord.Interaction, text: discord.Message):
     try:
         lines = await wrap_by_lines(text.clean_content)
-        font_size = min(BASE_FONT_SIZE, int(AVAILABLE_HEIGHT / (len(lines) * LINE_HEIGHT_RATE)))
+        #font_size = min(BASE_FONT_SIZE, int(AVAILABLE_HEIGHT / (len(lines) * LINE_HEIGHT_RATE)))
+
+        line_count = max(1, len(lines))
+        font_size = max(12, min(BASE_FONT_SIZE, int(AVAILABLE_HEIGHT /(ine_count * LINE_HEIGHT_RATE))))
 
         h = random.random()
         r, g, b = colorsys.hsv_to_rgb(h, s, v)
         bg_color = f"rgb({int(r*255)}, {int(g*255)}, {int(b*255)})"
 
+        text_svg = ""
+        for i, line in enumerate(lines):
+            y = TOP_MARGIN + (i * font_size * LINE_HEIGHT_RATE)
+            text_svg += f"""
+            <text
+                x="50%"
+                y="{y}"
+                text-anchor="middle"
+                font-size="{font_size}"
+                font-family="{FONT_NAME}"
+                fill="#dddddd">
+                {escape(line)}
+            </text>
+            """
+        name_y = (
+            TOP_MARGIN
+            + len(lines) * font_size * LINE_HEIGHT_RATE
+            + 60
+        )
+        svg = f"""
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+           width="{W}"
+            height="{H}"
+            viewBox="0 0 {W} {H}">
+            <rect
+                width="100%"
+                height="100%"
+                fill="{bg_color}" />
+            <circle
+                cx="200"
+                cy="200"
+                r="180"
+                fill="#00000066" />
+            <text
+                x="50%"
+                y="40"
+                text-anchor="middle"
+                font-size="24"
+                fill="#ffffff">
+                ウェブマニア公認鯖
+            </text>
+            {text_svg}
+            <text
+                x="50%"
+                y="{name_y}"
+                text-anchor="middle"
+                font-size="{font_size * 0.8}"
+                fill="#ffffff">
+                {escape(message.author.display_name)}
+            </text>
+            <text
+                x="{W-10}"
+                y="{H-10}"
+                text-anchor="end"
+                font-size="12"
+                fill="#cccccc">
+                {signature}
+            </text>
+        </svg>
+        """
 
+        ```
         svg = f'''<?xml version="1.0" encoding="UTF-8"?>
             <svg width="100%" height="100%" viewBox="0 0 400 400"
             xmlns="http://www.w3.org/2000/svg">
@@ -737,9 +803,9 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
                 {signature}
             </text>
         </svg>'''
+
         
-        """
-        svg = f'''<?xml version="1.0" encoding="UTF-8"?>
+        svg = f"""<?xml version="1.0" encoding="UTF-8"?>
         <svg width="{W}" height="{H}" viewBox="0 0 {W} {H}"
             xmlns="http://www.w3.org/2000/svg">
             
@@ -764,11 +830,9 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
                 {signature}
             </text>
         </svg>
-        '''
+        """
+
     
-        """
-        
-        """
         lines = wrap_by_lines(text.content)
         font_size = min(
             BASE_FONT_SIZE,
@@ -810,7 +874,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
 
         </svg>
         '''
-        """
+        ```
 
         h = random.random()
         with open(str(h) + ".svg", "w", encoding="utf-8") as f:
