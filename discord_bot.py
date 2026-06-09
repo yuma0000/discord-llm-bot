@@ -731,55 +731,8 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
                 {escape(line)}
             </text>
             """
-        name_y = (
-            TOP_MARGIN
-            + len(lines) * font_size * LINE_HEIGHT_RATE
-            + 60
-        )
-        svg = f"""
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-           width="{W}"
-            height="{H}"
-            viewBox="0 0 {W} {H}">
-            <rect
-                width="100%"
-                height="100%"
-                fill="{bg_color}" />
-            <circle
-                cx="200"
-                cy="200"
-                r="180"
-                fill="#00000066" />
-            <text
-                x="50%"
-                y="40"
-                text-anchor="middle"
-                font-size="24"
-                fill="#ffffff">
-                ウェブマニア公認鯖
-            </text>
-            {text_svg}
-            <text
-                x="50%"
-                y="{name_y}"
-                text-anchor="middle"
-                font-size="{font_size * 0.8}"
-                fill="#ffffff">
-                {escape(text.author.display_name)}
-            </text>
-            <text
-                x="{W-10}"
-                y="{H-10}"
-                text-anchor="end"
-                font-size="12"
-                fill="#cccccc">
-                {signature}
-            </text>
-        </svg>
-        """
+       
 
-        '''
         svg = f"""<?xml version="1.0" encoding="UTF-8"?>
             <svg width="100%" height="100%" viewBox="0 0 400 400"
             xmlns="http://www.w3.org/2000/svg">
@@ -795,7 +748,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
                 fill="#080808">
                 {text.author.display_name}
             </text>
-
+            {text_svg}
             <text x="{W-16}" y="{H-16}"
                 text-anchor="end"
                 font-size="14"
@@ -805,7 +758,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         </svg>
         """
 
-        
+        '''
         svg = f"""<?xml version="1.0" encoding="UTF-8"?>
         <svg width="{W}" height="{H}" viewBox="0 0 {W} {H}"
             xmlns="http://www.w3.org/2000/svg">
