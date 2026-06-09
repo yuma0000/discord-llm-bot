@@ -766,7 +766,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
                 text-anchor="middle"
                 font-size="{font_size * 0.8}"
                 fill="#ffffff">
-                {escape(message.author.display_name)}
+                {escape(text.author.display_name)}
             </text>
             <text
                 x="{W-10}"
