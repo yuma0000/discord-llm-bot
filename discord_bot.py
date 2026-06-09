@@ -779,8 +779,8 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         </svg>
         """
 
-        ```
-        svg = f'''<?xml version="1.0" encoding="UTF-8"?>
+        '''
+        svg = f"""<?xml version="1.0" encoding="UTF-8"?>
             <svg width="100%" height="100%" viewBox="0 0 400 400"
             xmlns="http://www.w3.org/2000/svg">
             <rect x="0" y="0" width="100%" height="100%" fill="black" />
@@ -802,7 +802,8 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
                 fill="#777">
                 {signature}
             </text>
-        </svg>'''
+        </svg>
+        """
 
         
         svg = f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -850,7 +851,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
             )
         tspan_text = "\n".join(tspans)
 
-        svg = f'''<?xml version="1.0" encoding="UTF-8"?>
+        svg = f"""<?xml version="1.0" encoding="UTF-8"?>
             <svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">
 
             <rect width="100%" height="100%" fill="{bg_color}"/>
@@ -873,10 +874,10 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
             </text>
 
         </svg>
+        """
         '''
-        ```
+        
 
-        h = random.random()
         with open(str(h) + ".svg", "w", encoding="utf-8") as f:
             f.write(svg)
 
