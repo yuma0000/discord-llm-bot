@@ -711,7 +711,7 @@ async def miq(interaction: discord.Interaction, text: discord.Message):
         #font_size = min(BASE_FONT_SIZE, int(AVAILABLE_HEIGHT / (len(lines) * LINE_HEIGHT_RATE)))
 
         line_count = max(1, len(lines))
-        font_size = max(12, min(BASE_FONT_SIZE, int(AVAILABLE_HEIGHT /(ine_count * LINE_HEIGHT_RATE))))
+        font_size = max(12, min(BASE_FONT_SIZE, int(AVAILABLE_HEIGHT /(line_count * LINE_HEIGHT_RATE))))
 
         h = random.random()
         r, g, b = colorsys.hsv_to_rgb(h, s, v)
